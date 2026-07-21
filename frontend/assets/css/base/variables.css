@@ -5,6 +5,8 @@
 
 :root{
 
+    --font-primary: "Poppins", sans-serif;
+
     /*=====================================================
         COLORES PRINCIPALES
     =====================================================*/
@@ -43,7 +45,7 @@
         TIPOGRAFÍA
     =====================================================*/
 
-    --font-family:'Poppins',sans-serif;
+    --font-family: var(--font-primary);
 
     --font-xs:12px;
     --font-sm:14px;
@@ -93,5 +95,15 @@
 
     --sidebar-width:280px;
     --topbar-height:75px;
+
+    /*=====================================================
+    TEMAS
+    =====================================================*/
+
+    --text-primary:var(--gray-900);
+    --text-secondary:var(--gray-600);
+
+    --surface:var(--white);
+    --surface-hover:var(--gray-50);
 
 }

@@ -1,0 +1,189 @@
+/*=====================================================
+    TOAST
+=====================================================*/
+
+.toast-container{
+
+    position:fixed;
+
+    top:20px;
+
+    right:20px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    z-index:9999;
+
+    pointer-events:none;
+
+}
+
+/*=====================================================
+    TOAST
+=====================================================*/
+
+.toast{
+
+    min-width:320px;
+
+    max-width:420px;
+
+    padding:16px 18px;
+
+    border-radius:10px;
+
+    background:var(--white);
+
+    color:var(--gray-800);
+
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+
+    border-left:5px solid transparent;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    font-size:.95rem;
+
+    font-weight:500;
+
+    pointer-events:auto;
+
+    animation:toastIn .25s ease forwards;
+
+}
+
+/*=====================================================
+    ICONO
+=====================================================*/
+
+.toast-icon{
+
+    font-size:1.2rem;
+
+    flex-shrink:0;
+
+}
+
+/*=====================================================
+    MENSAJE
+=====================================================*/
+
+.toast-message{
+
+    flex:1;
+
+    line-height:1.4;
+
+}
+
+/*=====================================================
+    TIPOS
+=====================================================*/
+
+.toast-success{
+
+    border-color:var(--color-success);
+
+}
+
+.toast-error{
+
+    border-color:var(--color-danger);
+
+}
+
+.toast-warning{
+
+    border-color:var(--color-warning);
+
+}
+
+.toast-info{
+
+    border-color:var(--color-info);
+
+}
+
+/*=====================================================
+    ANIMACIONES
+=====================================================*/
+
+@keyframes toastIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateX(40px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateX(0);
+
+    }
+
+}
+
+@keyframes toastOut{
+
+    from{
+
+        opacity:1;
+
+        transform:translateX(0);
+
+    }
+
+    to{
+
+        opacity:0;
+
+        transform:translateX(40px);
+
+    }
+
+}
+
+.toast.hide{
+
+    animation:toastOut .25s ease forwards;
+
+}
+
+/*=====================================================
+    RESPONSIVE
+=====================================================*/
+
+@media(max-width:768px){
+
+    .toast-container{
+
+        left:15px;
+
+        right:15px;
+
+        top:15px;
+
+    }
+
+    .toast{
+
+        min-width:100%;
+
+        max-width:100%;
+
+    }
+
+}

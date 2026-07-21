@@ -1,19 +1,33 @@
 /*=========================================================
-    CONFIGURACIÓN GLOBAL
+    CONFIGURACIÓN GENERAL
 =========================================================*/
 
-const CONFIG = {
+const AppConfig = Object.freeze({
 
-    APP_NAME: "SIGC",
+    app:{
 
-    APP_VERSION: "1.0.0",
+        name:"SIGC",
 
-    API_URL: "http://localhost:3000/api",
+        version:"1.0.0"
 
-    DEFAULT_LANGUAGE: "es",
+    },
 
-    DEFAULT_CURRENCY: "USD"
+    api:{
 
-};
+        baseUrl:"http://localhost:3000/api",
 
-Object.freeze(CONFIG);
+        timeout:10000
+
+    },
+
+    localization:{
+
+        language:"es",
+
+        currency:"USD"
+
+    }
+
+});
+
+export default AppConfig;

@@ -1,8 +1,8 @@
 /*=========================================================
-    CONSTANTES GLOBALES
+    ROLES
 =========================================================*/
 
-const ROLES = Object.freeze({
+export const ROLES = Object.freeze({
 
     ADMINISTRADOR: "Administrador",
 
@@ -12,7 +12,11 @@ const ROLES = Object.freeze({
 
 });
 
-const ESTADOS_VALLA = Object.freeze({
+/*=========================================================
+    ESTADOS DE VALLAS
+=========================================================*/
+
+export const ESTADOS_VALLA = Object.freeze({
 
     DISPONIBLE: "Disponible",
 
@@ -24,10 +28,53 @@ const ESTADOS_VALLA = Object.freeze({
 
 });
 
-const MONEDAS = Object.freeze({
+/*=========================================================
+    MONEDAS
+=========================================================*/
+
+export const MONEDAS = Object.freeze({
 
     USD: "USD",
 
     CRC: "CRC"
+
+});
+
+/*=========================================================
+    MENSAJES DEL SISTEMA
+=========================================================*/
+
+export const MESSAGES = Object.freeze({
+
+    LOGIN:{
+
+        EMAIL_REQUIRED: "Ingrese su correo electrónico.",
+
+        PASSWORD_REQUIRED: "Ingrese su contraseña.",
+
+        INVALID_EMAIL: "Ingrese un correo electrónico válido.",
+
+        INVALID_CREDENTIALS: "Correo o contraseña incorrectos.",
+
+        LOGIN_ERROR: "No fue posible iniciar sesión.",
+
+        LOGIN_SUCCESS: "Inicio de sesión exitoso."
+
+    }
+
+});
+
+
+/*=========================================================
+    CONSTANTES DE LA APLICACIÓN
+=========================================================*/
+
+export const APP = Object.freeze({
+
+    MAX_LOGIN_ATTEMPTS: 5,
+
+    TOKEN_STORAGE_KEY: "sigc_token",
+
+    SESSION_STORAGE_KEY: "sigc_session"
 
 });
