@@ -7,9 +7,13 @@
 
 import AppConfig from "../core/config.js";
 
+import { getToken } from "../core/auth.js";
+
 class HttpService {
 
     async request(url, options = {}) {
+
+        const token = getToken();
 
         const response = await fetch(
 
@@ -18,6 +22,8 @@ class HttpService {
             {
                 headers: {
                     "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    ...(token ? { "Authorization": `Bearer ${token}` } : {}),
                     ...(options.headers || {})
                 },
                 ...options

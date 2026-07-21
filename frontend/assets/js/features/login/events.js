@@ -4,6 +4,8 @@ import { MESSAGES } from "../../core/constants.js";
 
 import { login } from "./api.js";
 
+import { saveSession } from "../../core/auth.js";
+
 import { getFormElements, getFormData } from "./utils.js";
 
 import Loader from "../../components/loader/loader.js";
@@ -68,6 +70,14 @@ async function handleSubmit(event) {
 
     }
 
+    if (loginState.attempts >= loginState.maxAttempts) {
+
+        showError("Demasiados intentos fallidos. Recargue la página e intente de nuevo.");
+
+        return;
+
+    }
+
     const data = getFormData();
 
     if (!validateForm(data)) {
@@ -86,9 +96,13 @@ async function handleSubmit(event) {
 
         const response = await login(data);
 
-        console.log(response);
+        saveSession(response.usuario, response.token);
 
         loginState.authenticated = true;
+
+        loginState.user = response.usuario;
+
+        loginState.attempts = 0;
 
         window.location.replace("../dashboard/dashboard.html");
 
@@ -98,7 +112,15 @@ async function handleSubmit(event) {
 
         console.error(error);
 
-        showError(MESSAGES.LOGIN.LOGIN_ERROR);
+        loginState.attempts += 1;
+
+        const message = error?.status === 422 || error?.status === 401
+
+            ? MESSAGES.LOGIN.INVALID_CREDENTIALS
+
+            : MESSAGES.LOGIN.LOGIN_ERROR;
+
+        showError(message);
 
     }
 

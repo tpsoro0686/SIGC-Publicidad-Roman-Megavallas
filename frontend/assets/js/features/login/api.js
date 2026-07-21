@@ -8,7 +8,10 @@ import http from "../../services/http.js";
 
 /**
  * Inicia sesión.
- * @param {Object} credentials
+ * El formulario maneja el campo como "email" (ver utils.js),
+ * pero el backend espera "correo" — se traduce aquí para no
+ * tener que tocar el HTML ni los IDs del formulario.
+ * @param {Object} credentials { email, password }
  * @returns {Promise<Object>}
  */
 export function login(credentials) {
@@ -17,7 +20,10 @@ export function login(credentials) {
 
         "/auth/login",
 
-        credentials
+        {
+            correo: credentials.email,
+            password: credentials.password
+        }
 
     );
 
