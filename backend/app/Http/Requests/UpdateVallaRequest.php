@@ -18,6 +18,8 @@ class UpdateVallaRequest extends FormRequest
             'latitud' => ['sometimes', 'numeric', 'between:-90,90'],
             'longitud' => ['sometimes', 'numeric', 'between:-180,180'],
             'tamano' => ['nullable', 'string', 'max:50'],
+            'precio_normal' => ['nullable', 'numeric', 'min:0'],
+            'precio_minimo' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 }

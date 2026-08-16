@@ -6,6 +6,7 @@ use App\Models\Bitacora;
 use App\Models\Provincia;
 use App\Models\Usuario;
 use App\Models\Valla;
+use App\Models\Contrato;
 use Illuminate\Validation\ValidationException;
 
 class VallaService
@@ -20,10 +21,11 @@ class VallaService
         'Limon' => 'L',
     ];
 
-    public function listar(?string $estado = null)
+    public function listar(?string $estado = null, ?int $provinciaId = null)
     {
         return Valla::with('provincia', 'fotos')
             ->when($estado, fn ($query) => $query->where('estado', $estado))
+            ->when($provinciaId, fn ($query) => $query->where('provincia_id', $provinciaId))
             ->get();
     }
 
@@ -86,4 +88,24 @@ class VallaService
             'descripcion' => "Valla {$valla->codigo}",
         ]);
     }
+
+    public function resumen(): array
+    {
+        return [
+            'total' => Valla::count(),
+            'disponibles' => Valla::where('estado', 'Disponible')->count(),
+            'reservadas' => Valla::where('estado', 'Reservada')->count(),
+            'contratos_activos' => Contrato::where('estado', 'Activo')
+                ->where('fecha_fin', '>=', now())
+                ->count(),
+            'contratos_por_vencer' => Contrato::where('estado', 'Activo')
+                ->whereBetween('fecha_fin', [now(), now()->addDays(30)])
+                ->count(),
+            'contratos_vencidos' => Contrato::where('estado', 'Activo')
+                ->where('fecha_fin', '<', now())
+                ->count(),
+        ];
+    }
+
+    
 }

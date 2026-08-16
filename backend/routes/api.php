@@ -19,6 +19,7 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->prefix('vallas')->group(function () {
     Route::get('/', [VallaController::class, 'index']);
+    Route::get('/resumen', [VallaController::class, 'resumen']);
     Route::post('/', [VallaController::class, 'store']);
     Route::get('/{valla}', [VallaController::class, 'show']);
     Route::put('/{valla}', [VallaController::class, 'update']);

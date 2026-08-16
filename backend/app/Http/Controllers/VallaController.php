@@ -18,7 +18,10 @@ class VallaController extends Controller
 
     public function index(Request $request)
     {
-        $vallas = $this->vallaService->listar($request->query('estado'));
+        $vallas = $this->vallaService->listar(
+            $request->query('estado'),
+            $request->query('provincia_id'),
+        );
 
         return VallaResource::collection($vallas);
     }
@@ -35,7 +38,13 @@ class VallaController extends Controller
 
     public function show(Valla $valla)
     {
-        return new VallaResource($valla->load('provincia', 'fotos'));
+        return new VallaResource($valla->load(
+            'provincia',
+            'fotos',
+            'reservaActiva.usuario',
+            'contratoActivo.cliente',
+            'contratoActivo.usuario',
+        ));
     }
 
     public function update(UpdateVallaRequest $request, Valla $valla)
@@ -59,4 +68,10 @@ class VallaController extends Controller
 
         return new VallaResource($valla);
     }
+
+    public function resumen()
+    {
+        return response()->json($this->vallaService->resumen());
+    }
+    
 }

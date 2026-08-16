@@ -20,6 +20,8 @@ class StoreVallaRequest extends FormRequest
             'longitud' => ['required', 'numeric', 'between:-180,180'],
             'tamano' => ['nullable', 'string', 'max:50'],
             'codigo' => ['nullable', 'string', 'max:30', 'unique:vallas,codigo'],
+            'precio_normal' => ['nullable', 'numeric', 'min:0'],
+            'precio_minimo' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 }
