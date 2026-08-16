@@ -9,6 +9,8 @@ import AppConfig from "../core/config.js";
 
 import { getToken } from "../core/auth.js";
 
+import { forceLogout } from "../core/guard.js";
+
 class HttpService {
 
     async request(url, options = {}) {
@@ -30,6 +32,23 @@ class HttpService {
             }
 
         );
+
+        // Token vencido, revocado, o usuario inactivo: cerramos sesión
+        // local y mandamos a login, sin que cada módulo tenga que
+        // manejar este caso por separado.
+        if (response.status === 401) {
+
+            forceLogout();
+
+            throw {
+
+                status: 401,
+
+                message: "Sesión expirada."
+
+            };
+
+        }
 
         const data = await response.json().catch(() => null);
 

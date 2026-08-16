@@ -3,10 +3,12 @@
     APLICACIÓN PRINCIPAL
 =========================================================*/
 
+import AppConfig from "./config.js";
+
 document.addEventListener("DOMContentLoaded", iniciarAplicacion);
 
 function iniciarAplicacion(){
 
-    console.log(`${CONFIG.APP_NAME} v${CONFIG.APP_VERSION} iniciado.`);
+    console.log(`${AppConfig.app.name} v${AppConfig.app.version} iniciado.`);
 
 }
