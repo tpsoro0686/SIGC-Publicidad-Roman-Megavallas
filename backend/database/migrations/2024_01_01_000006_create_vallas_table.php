@@ -10,8 +10,11 @@ return new class extends Migration
     {
         Schema::create('vallas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('estructura_id')->constrained('estructuras');
+            $table->foreignId('provincia_id')->constrained('provincias');
             $table->string('codigo', 30)->unique()->comment('Permanente e inmutable, nunca se reutiliza');
+            $table->string('referencia', 255);
+            $table->decimal('latitud', 10, 7);
+            $table->decimal('longitud', 10, 7);
             $table->string('tamano', 50)->nullable();
             $table->enum('estado', ['Disponible', 'Reservada', 'Alquilada', 'Mantenimiento', 'Inactiva'])
                   ->default('Disponible');

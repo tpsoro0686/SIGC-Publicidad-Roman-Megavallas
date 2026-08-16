@@ -14,6 +14,9 @@ class UpdateVallaRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'referencia' => ['sometimes', 'string', 'max:255'],
+            'latitud' => ['sometimes', 'numeric', 'between:-90,90'],
+            'longitud' => ['sometimes', 'numeric', 'between:-180,180'],
             'tamano' => ['nullable', 'string', 'max:50'],
         ];
     }

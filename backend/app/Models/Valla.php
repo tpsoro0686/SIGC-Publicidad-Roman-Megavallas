@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Valla extends Model
 {
-    protected $fillable = ['estructura_id', 'codigo', 'tamano', 'estado'];
+    protected $fillable = ['provincia_id', 'codigo', 'referencia', 'latitud', 'longitud', 'tamano', 'estado'];
 
-    public function estructura(): BelongsTo
+    public function provincia(): BelongsTo
     {
-        return $this->belongsTo(Estructura::class);
+        return $this->belongsTo(Provincia::class);
     }
 
     public function fotos(): HasMany

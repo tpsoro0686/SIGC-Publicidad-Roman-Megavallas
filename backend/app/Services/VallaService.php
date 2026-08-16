@@ -2,22 +2,37 @@
 
 namespace App\Services;
 
+use App\Models\Bitacora;
+use App\Models\Provincia;
 use App\Models\Usuario;
 use App\Models\Valla;
 use Illuminate\Validation\ValidationException;
 
 class VallaService
 {
+    private const PREFIJOS_PROVINCIA = [
+        'San Jose' => 'SJ',
+        'Alajuela' => 'A',
+        'Cartago' => 'C',
+        'Heredia' => 'H',
+        'Guanacaste' => 'G',
+        'Puntarenas' => 'P',
+        'Limon' => 'L',
+    ];
+
     public function listar(?string $estado = null)
     {
-        return Valla::with('estructura', 'fotos')
+        return Valla::with('provincia', 'fotos')
             ->when($estado, fn ($query) => $query->where('estado', $estado))
             ->get();
     }
 
     public function crear(array $datos, Usuario $usuario): Valla
     {
+        $datos['codigo'] = $datos['codigo'] ?? $this->generarCodigo($datos['provincia_id']);
+
         $valla = Valla::create($datos);
+        $valla->refresh();
 
         $this->registrarBitacora($usuario, 'Creacion de valla', $valla);
 
@@ -48,9 +63,23 @@ class VallaService
         return $valla;
     }
 
+    private function generarCodigo(int $provinciaId): string
+    {
+        $provincia = Provincia::findOrFail($provinciaId);
+        $prefijo = $this->prefijoPorProvincia($provincia->nombre);
+        $siguiente = Valla::where('codigo', 'like', "{$prefijo}-%")->count() + 1;
+
+        return sprintf('%s-%03d', $prefijo, $siguiente);
+    }
+
+    private function prefijoPorProvincia(string $nombreProvincia): string
+    {
+        return self::PREFIJOS_PROVINCIA[$nombreProvincia] ?? 'XX';
+    }
+
     private function registrarBitacora(Usuario $usuario, string $accion, Valla $valla): void
     {
-        \App\Models\Bitacora::create([
+        Bitacora::create([
             'usuario_id' => $usuario->id,
             'modulo' => 'Vallas',
             'accion' => $accion,

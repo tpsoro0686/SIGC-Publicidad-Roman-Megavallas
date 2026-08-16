@@ -35,7 +35,7 @@ class VallaController extends Controller
 
     public function show(Valla $valla)
     {
-        return new VallaResource($valla->load('estructura', 'fotos'));
+        return new VallaResource($valla->load('provincia', 'fotos'));
     }
 
     public function update(UpdateVallaRequest $request, Valla $valla)
