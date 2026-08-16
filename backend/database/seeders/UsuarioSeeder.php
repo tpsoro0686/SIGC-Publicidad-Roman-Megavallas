@@ -18,7 +18,7 @@ class UsuarioSeeder extends Seeder
             [
                 'rol_id' => $admin->id,
                 'nombre' => 'Administrador SIGC',
-                'password' => Hash::make('CAMBIAR-ESTA-PASSWORD'),
+                'password' => Hash::make('1234'),
                 'estado' => 'Activo',
             ]
         );

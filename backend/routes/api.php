@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\VallaController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -15,3 +16,11 @@ Route::prefix('auth')->group(function () {
 // A partir de aca se agregan las rutas de los demas modulos
 // (vallas, reservas, contratos, clientes, etc.), todas protegidas
 // con el middleware auth:sanctum salvo que se indique lo contrario.
+
+Route::middleware('auth:sanctum')->prefix('vallas')->group(function () {
+    Route::get('/', [VallaController::class, 'index']);
+    Route::post('/', [VallaController::class, 'store']);
+    Route::get('/{valla}', [VallaController::class, 'show']);
+    Route::put('/{valla}', [VallaController::class, 'update']);
+    Route::patch('/{valla}/estado', [VallaController::class, 'cambiarEstado']);
+});

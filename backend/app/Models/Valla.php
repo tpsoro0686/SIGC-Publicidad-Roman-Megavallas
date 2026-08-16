@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Valla extends Model
 {
-    protected $fillable = ['estructura_id', 'codigo', 'cara', 'tamano', 'estado'];
+    protected $fillable = ['estructura_id', 'codigo', 'tamano', 'estado'];
 
     public function estructura(): BelongsTo
     {

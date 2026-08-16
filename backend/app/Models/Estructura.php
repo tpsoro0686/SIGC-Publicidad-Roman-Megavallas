@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Estructura extends Model
 {
-    protected $fillable = ['distrito_id', 'lugar', 'latitud', 'longitud'];
+    protected $fillable = ['provincia_id', 'referencia', 'latitud', 'longitud'];
 
-    public function distrito(): BelongsTo
+    public function provincia(): BelongsTo
     {
-        return $this->belongsTo(Distrito::class);
+        return $this->belongsTo(Provincia::class);
     }
 
     // Las caras (una o dos) de esta estructura física.

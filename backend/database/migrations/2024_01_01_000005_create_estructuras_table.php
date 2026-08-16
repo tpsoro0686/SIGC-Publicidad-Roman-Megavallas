@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('estructuras', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('distrito_id')->constrained('distritos');
-            $table->string('lugar', 255);
+            $table->foreignId('provincia_id')->constrained('provincias');
+            $table->string('referencia', 255);
             $table->decimal('latitud', 10, 7);
             $table->decimal('longitud', 10, 7);
             $table->timestamps();

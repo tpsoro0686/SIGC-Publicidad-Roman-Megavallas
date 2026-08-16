@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('estructura_id')->constrained('estructuras');
             $table->string('codigo', 30)->unique()->comment('Permanente e inmutable, nunca se reutiliza');
-            $table->enum('cara', ['A', 'B'])->nullable()->comment('Solo aplica si la estructura tiene doble cara');
             $table->string('tamano', 50)->nullable();
             $table->enum('estado', ['Disponible', 'Reservada', 'Alquilada', 'Mantenimiento', 'Inactiva'])
                   ->default('Disponible');
