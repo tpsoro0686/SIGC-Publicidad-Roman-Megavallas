@@ -14,7 +14,7 @@ import { renderTarjetas } from "./render/tarjetas.js";
 
 import { renderDetalle } from "./render/detalle.js";
 
-import { showError } from "./render/messages.js";
+import { showError, showSuccess } from "./render/messages.js";
 
 function aplicarFiltroLocal(vallas) {
 
@@ -51,6 +51,8 @@ function renderizarListado() {
     const estaVacio = vallasFiltradas.length === 0;
 
     document.getElementById("sigcEmptyState").classList.toggle("d-none", !estaVacio);
+
+    lucide.createIcons();
 
 }
 
@@ -144,6 +146,8 @@ async function cargarProvincias() {
 
         });
 
+        llenarSelectProvincias();
+
     }
 
     catch (error) {
@@ -151,6 +155,226 @@ async function cargarProvincias() {
         console.error(error);
 
     }
+
+}
+
+function llenarSelectProvincias() {
+
+    const select = document.getElementById("campoProvincia");
+
+    vallasState.provincias.forEach((provincia) => {
+
+        const option = document.createElement("option");
+
+        option.value = provincia.id;
+
+        option.textContent = provincia.nombre;
+
+        select.appendChild(option);
+
+    });
+
+}
+
+const PREFIJOS_PROVINCIA = {
+
+    "San Jose": "SJ",
+
+    "Alajuela": "A",
+
+    "Cartago": "C",
+
+    "Heredia": "H",
+
+    "Guanacaste": "G",
+
+    "Puntarenas": "P",
+
+    "Limon": "L"
+
+};
+
+function actualizarPreviewCodigo() {
+
+    const checkbox = document.getElementById("checkCodigoManual");
+
+    const preview = document.getElementById("codigoPreview");
+
+    if (checkbox.checked) {
+
+        preview.textContent = "Se usará el código que escribas abajo";
+
+        return;
+
+    }
+
+    const provinciaId = Number(document.getElementById("campoProvincia").value);
+
+    const provincia = vallasState.provincias.find((p) => p.id === provinciaId);
+
+    if (!provincia) {
+
+        preview.textContent = "Seleccioná una provincia";
+
+        return;
+
+    }
+
+    const prefijo = PREFIJOS_PROVINCIA[provincia.nombre] || "XX";
+
+    const cantidadExistente = vallasState.vallas.filter((v) => v.codigo.startsWith(`${prefijo}-`)).length;
+
+    const siguiente = String(cantidadExistente + 1).padStart(3, "0");
+
+    preview.textContent = `${prefijo}-${siguiente}`;
+
+}
+
+function registrarCheckCodigoManual() {
+
+    const checkbox = document.getElementById("checkCodigoManual");
+
+    const campoCodigo = document.getElementById("campoCodigo");
+
+    checkbox.addEventListener("change", () => {
+
+        campoCodigo.classList.toggle("d-none", !checkbox.checked);
+
+        if (!checkbox.checked) {
+
+            campoCodigo.value = "";
+
+        }
+
+        actualizarPreviewCodigo();
+
+    });
+
+    document.getElementById("campoProvincia").addEventListener("change", actualizarPreviewCodigo);
+
+}
+
+function limpiarFormularioNuevaValla({ mantenerProvincia = false } = {}) {
+
+    const provinciaActual = document.getElementById("campoProvincia").value;
+
+    document.getElementById("formNuevaValla").reset();
+
+    if (mantenerProvincia) {
+
+        document.getElementById("campoProvincia").value = provinciaActual;
+
+    }
+
+    document.getElementById("campoCodigo").classList.add("d-none");
+
+    document.getElementById("formNuevaVallaError").classList.add("d-none");
+
+    actualizarPreviewCodigo();
+
+    document.getElementById("campoReferencia").focus();
+
+}
+
+// TEMPORAL: contador de sesión para la carga inicial masiva
+let contadorSesion = 0;
+
+async function manejarSubmitNuevaValla(evento) {
+
+    evento.preventDefault();
+
+    const errorBox = document.getElementById("formNuevaVallaError");
+
+    errorBox.classList.add("d-none");
+
+    const datos = {
+
+        provincia_id: Number(document.getElementById("campoProvincia").value),
+
+        referencia: document.getElementById("campoReferencia").value.trim(),
+
+        latitud: Number(document.getElementById("campoLatitud").value),
+
+        longitud: Number(document.getElementById("campoLongitud").value),
+
+        tamano: document.getElementById("campoTamano").value.trim() || null,
+
+        precio_normal: document.getElementById("campoPrecioNormal").value || null,
+
+        precio_minimo: document.getElementById("campoPrecioMinimo").value || null
+
+    };
+
+    const codigoManual = document.getElementById("checkCodigoManual").checked;
+
+    if (codigoManual) {
+
+        datos.codigo = document.getElementById("campoCodigo").value.trim();
+
+    }
+
+    const boton = document.getElementById("btnGuardarValla");
+
+    boton.disabled = true;
+
+    boton.textContent = "Guardando...";
+
+    try {
+
+        const vallaCreada = await api.crear(datos);
+
+        // TEMPORAL: actualizar contador y última creada, sin cerrar el modal
+        contadorSesion += 1;
+
+        document.getElementById("contadorSesion").textContent = contadorSesion;
+
+        document.getElementById("ultimaCreada").textContent = vallaCreada.codigo;
+
+        limpiarFormularioNuevaValla({ mantenerProvincia: document.getElementById("checkMantenerProvincia").checked });
+
+        cargarVallas();
+
+        cargarResumen();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        errorBox.textContent = error?.message || "No se pudo crear la valla.";
+
+        errorBox.classList.remove("d-none");
+
+    }
+
+    finally {
+
+        boton.disabled = false;
+
+        boton.textContent = "Agregar";
+
+    }
+
+}
+
+function registrarFormularioNuevaValla() {
+
+    document.getElementById("formNuevaValla").addEventListener("submit", manejarSubmitNuevaValla);
+
+    document.getElementById("btnNuevaValla").addEventListener("click", () => {
+
+        contadorSesion = 0;                                          // nueva línea
+
+        document.getElementById("contadorSesion").textContent = "0";  // nueva línea
+
+        document.getElementById("ultimaCreada").textContent = "—";    // nueva línea
+
+        const modal = new bootstrap.Modal(document.getElementById("modalNuevaValla"));
+
+        modal.show();
+
+    });
 
 }
 
@@ -166,8 +390,12 @@ async function abrirDetalle(id) {
 
         document.getElementById("panelDetalleValla").classList.add("is-open");
 
+        document.getElementById("sigcVallasLayout").classList.add("has-detalle");
+
         renderizarListado();
 
+        lucide.createIcons();
+ 
     }
 
     catch (error) {
@@ -186,7 +414,11 @@ function cerrarDetalle() {
 
     document.getElementById("panelDetalleValla").classList.remove("is-open");
 
+    document.getElementById("sigcVallasLayout").classList.remove("has-detalle");
+
     renderizarListado();
+
+    lucide.createIcons();
 
 }
 
@@ -305,6 +537,10 @@ export function registerEvents() {
     registrarCierreDetalle();
 
     registrarSidebar();
+
+    registrarCheckCodigoManual();       // nueva
+
+    registrarFormularioNuevaValla();    // nueva
 
     cargarProvincias();
 

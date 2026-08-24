@@ -415,10 +415,12 @@ body {
 /* Desktop grande: listado + detalle lado a lado */
 @media (min-width: 992px) {
     .sigc-vallas-layout {
+        grid-template-columns: 1fr;
+    }
+    .sigc-vallas-layout.has-detalle {
         grid-template-columns: 1fr 380px;
     }
     .sigc-detalle-panel {
-        display: block;
         position: sticky;
         top: 84px;
     }
@@ -504,3 +506,74 @@ body {
 
 .sigc-detalle-lista dt { color: var(--sigc-text-muted); }
 .sigc-detalle-lista dd { margin: 0; text-align: right; font-weight: 500; }
+
+.sigc-icono-exito {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--sigc-green-bg);
+    color: var(--sigc-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin: 0 auto;
+}
+
+.sigc-titulo-exito {
+    color: var(--sigc-green);
+}
+
+.sigc-btn-success {
+    background: var(--sigc-green);
+    border-color: var(--sigc-green);
+    color: #fff;
+    font-weight: 600;
+    font-size: .88rem;
+    padding: 9px 16px;
+    border-radius: 8px;
+}
+
+.sigc-btn-success:hover {
+    background: #c41515;
+    color: #fff;
+}
+
+/* TEMPORAL: carga inicial masiva, quitar después */
+/* TEMPORAL: carga inicial masiva, quitar después */
+.sigc-carga-masiva-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    font-size: .72rem;
+    color: var(--sigc-blue);
+    margin-left: auto;
+    margin-right: 0px;
+    text-align: right;
+}
+
+.sigc-carga-masiva-header strong {
+    color: var(--sigc-blue);
+}
+
+.modal-dialog-scrollable .modal-body {
+    overflow-y: auto;
+    max-height: 85vh;
+}
+
+.sigc-codigo-preview {
+    background: var(--sigc-blue-bg);
+    border: 1px solid var(--sigc-blue);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: .03em;
+    color: var(--sigc-blue);
+    text-align: center;
+}
+
+#modalNuevaValla.modal {
+    overflow: hidden;
+}
