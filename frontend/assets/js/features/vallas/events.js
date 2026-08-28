@@ -16,6 +16,12 @@ import { renderDetalle } from "./render/detalle.js";
 
 import { showError, showSuccess } from "./render/messages.js";
 
+import * as reservasApi from "../reservas/api.js";
+
+let vallaEditandoId = null;
+
+let vallaReservandoId = null;
+
 function aplicarFiltroLocal(vallas) {
 
     const termino = vallasState.filtros.busqueda.trim().toLowerCase();
@@ -124,13 +130,39 @@ async function cargarResumen() {
 
 }
 
+const ORDEN_PROVINCIAS = [
+    "San Jose",
+    "Alajuela",
+    "San Carlos",
+    "Cartago",
+    "Heredia",
+    "Puntarenas",
+    "Guanacaste",
+    "Limon"
+];
+
+function ordenarProvincias(provincias) {
+
+    return [...provincias].sort((a, b) => {
+
+        const posA = ORDEN_PROVINCIAS.indexOf(a.nombre);
+
+        const posB = ORDEN_PROVINCIAS.indexOf(b.nombre);
+
+        return (posA === -1 ? ORDEN_PROVINCIAS.length : posA)
+            - (posB === -1 ? ORDEN_PROVINCIAS.length : posB);
+
+    });
+
+}
+
 async function cargarProvincias() {
 
     try {
 
         const respuesta = await api.listarProvincias();
 
-        vallasState.provincias = respuesta.data ?? respuesta;
+                vallasState.provincias = ordenarProvincias(respuesta.data ?? respuesta);
 
         const select = document.getElementById("filtroProvincia");
 
@@ -182,6 +214,8 @@ const PREFIJOS_PROVINCIA = {
 
     "Alajuela": "A",
 
+    "San Carlos": "Q",
+
     "Cartago": "C",
 
     "Heredia": "H",
@@ -202,11 +236,11 @@ function actualizarPreviewCodigo() {
 
     if (checkbox.checked) {
 
-        preview.textContent = "Se usará el código que escribas abajo";
-
         return;
 
     }
+
+    preview.value = "";
 
     const provinciaId = Number(document.getElementById("campoProvincia").value);
 
@@ -214,7 +248,7 @@ function actualizarPreviewCodigo() {
 
     if (!provincia) {
 
-        preview.textContent = "Seleccioná una provincia";
+        preview.placeholder = "Seleccioná una provincia";
 
         return;
 
@@ -226,7 +260,7 @@ function actualizarPreviewCodigo() {
 
     const siguiente = String(cantidadExistente + 1).padStart(3, "0");
 
-    preview.textContent = `${prefijo}-${siguiente}`;
+    preview.value = `${prefijo}-${siguiente}`;
 
 }
 
@@ -234,23 +268,35 @@ function registrarCheckCodigoManual() {
 
     const checkbox = document.getElementById("checkCodigoManual");
 
-    const campoCodigo = document.getElementById("campoCodigo");
+    const inputCodigo = document.getElementById("codigoPreview");
 
     checkbox.addEventListener("change", () => {
 
-        campoCodigo.classList.toggle("d-none", !checkbox.checked);
+        inputCodigo.readOnly = !checkbox.checked;
 
-        if (!checkbox.checked) {
+        if (checkbox.checked) {
 
-            campoCodigo.value = "";
+            inputCodigo.value = "";
+            inputCodigo.placeholder = "Escribí el código";
+            inputCodigo.focus();
+
+        } else {
+
+            actualizarPreviewCodigo();
 
         }
 
-        actualizarPreviewCodigo();
-
     });
 
-    document.getElementById("campoProvincia").addEventListener("change", actualizarPreviewCodigo);
+    document.getElementById("campoProvincia").addEventListener("change", () => {
+
+        if (!checkbox.checked) {
+
+            actualizarPreviewCodigo();
+
+        }
+
+    });
 
 }
 
@@ -266,8 +312,6 @@ function limpiarFormularioNuevaValla({ mantenerProvincia = false } = {}) {
 
     }
 
-    document.getElementById("campoCodigo").classList.add("d-none");
-
     document.getElementById("formNuevaVallaError").classList.add("d-none");
 
     actualizarPreviewCodigo();
@@ -279,6 +323,100 @@ function limpiarFormularioNuevaValla({ mantenerProvincia = false } = {}) {
 // TEMPORAL: contador de sesión para la carga inicial masiva
 let contadorSesion = 0;
 
+function mostrarMensajeExito(codigo) {
+
+    const mensaje = document.createElement("div");
+
+    mensaje.className = "sigc-mensaje-exito";
+
+    mensaje.innerHTML = `
+
+        <div class="sigc-mensaje-exito__icon">&#10003;</div>
+
+        <div class="sigc-mensaje-exito__codigo"> ${codigo}</div>
+
+       
+
+    `;
+
+    document.body.appendChild(mensaje);
+
+    setTimeout(() => {
+
+        mensaje.classList.add("hide");
+
+        setTimeout(() => {
+
+            mensaje.remove();
+
+        }, 200);
+
+    }, 2000);
+
+}
+
+function parseDMS(texto) {
+
+    const normalizado = texto
+        .trim()
+        .replace(/[º]/g, "°")
+        .replace(/[’′]/g, "'")
+        .replace(/[”″]/g, "\"");
+
+    const regex = /^(\d{1,3})°\s*(\d{1,2})'\s*(\d{1,2}(?:\.\d+)?)"\s*([NSEWnsew])$/;
+
+    const match = normalizado.match(regex);
+
+    if (!match) {
+
+        return null;
+
+    }
+
+    const grados = Number(match[1]);
+
+    const minutos = Number(match[2]);
+
+    const segundos = Number(match[3]);
+
+    const hemisferio = match[4].toUpperCase();
+
+    let decimal = grados + (minutos / 60) + (segundos / 3600);
+
+    if (hemisferio === "S" || hemisferio === "W") {
+
+        decimal = -decimal;
+
+    }
+
+    return decimal;
+
+}
+
+function formatDMS(decimal, tipo) {
+
+    const hemisferio = tipo === "lat"
+        ? (decimal >= 0 ? "N" : "S")
+        : (decimal >= 0 ? "E" : "W");
+
+    const absoluto = Math.abs(decimal);
+
+    const grados = Math.floor(absoluto);
+
+    const minutosDecimal = (absoluto - grados) * 60;
+
+    const minutos = Math.floor(minutosDecimal);
+
+    const segundos = (minutosDecimal - minutos) * 60;
+
+    const minutosStr = String(minutos).padStart(2, "0");
+
+    const segundosStr = segundos.toFixed(1).padStart(4, "0");
+
+    return `${grados}°${minutosStr}'${segundosStr}"${hemisferio}`;
+
+}
+
 async function manejarSubmitNuevaValla(evento) {
 
     evento.preventDefault();
@@ -287,15 +425,29 @@ async function manejarSubmitNuevaValla(evento) {
 
     errorBox.classList.add("d-none");
 
+        const latitud = parseDMS(document.getElementById("campoLatitud").value);
+
+    const longitud = parseDMS(document.getElementById("campoLongitud").value);
+
+    if (latitud === null || longitud === null) {
+
+        errorBox.textContent = "Latitud y longitud deben tener el formato 10°00'03.0\"N";
+
+        errorBox.classList.remove("d-none");
+
+        return;
+
+    }
+
     const datos = {
 
         provincia_id: Number(document.getElementById("campoProvincia").value),
 
         referencia: document.getElementById("campoReferencia").value.trim(),
 
-        latitud: Number(document.getElementById("campoLatitud").value),
+        latitud: latitud,
 
-        longitud: Number(document.getElementById("campoLongitud").value),
+        longitud: longitud,
 
         tamano: document.getElementById("campoTamano").value.trim() || null,
 
@@ -309,7 +461,7 @@ async function manejarSubmitNuevaValla(evento) {
 
     if (codigoManual) {
 
-        datos.codigo = document.getElementById("campoCodigo").value.trim();
+        datos.codigo = document.getElementById("codigoPreview").value.trim();
 
     }
 
@@ -321,7 +473,7 @@ async function manejarSubmitNuevaValla(evento) {
 
     try {
 
-        const vallaCreada = await api.crear(datos);
+                const vallaCreada = await api.crear(datos);
 
         // TEMPORAL: actualizar contador y última creada, sin cerrar el modal
         contadorSesion += 1;
@@ -330,11 +482,13 @@ async function manejarSubmitNuevaValla(evento) {
 
         document.getElementById("ultimaCreada").textContent = vallaCreada.codigo;
 
-        limpiarFormularioNuevaValla({ mantenerProvincia: document.getElementById("checkMantenerProvincia").checked });
+        mostrarMensajeExito(`Valla ${vallaCreada.codigo} agregada correctamente.`);
 
-        cargarVallas();
+        await cargarVallas();
 
         cargarResumen();
+
+        limpiarFormularioNuevaValla({ mantenerProvincia: document.getElementById("checkMantenerProvincia").checked });
 
     }
 
@@ -359,8 +513,21 @@ async function manejarSubmitNuevaValla(evento) {
 }
 
 function registrarFormularioNuevaValla() {
+    
 
-    document.getElementById("formNuevaValla").addEventListener("submit", manejarSubmitNuevaValla);
+    document.getElementById("formNuevaValla").addEventListener("submit", (evento) => {
+
+        if (vallaEditandoId) {
+
+            manejarSubmitEditarValla(evento);
+
+        } else {
+
+            manejarSubmitNuevaValla(evento);
+
+        }
+
+    });
 
     document.getElementById("btnNuevaValla").addEventListener("click", () => {
 
@@ -422,11 +589,299 @@ function cerrarDetalle() {
 
 }
 
+async function abrirEdicion(id) {
+
+    try {
+
+        const valla = await api.obtener(id);
+
+        vallaEditandoId = id;
+
+        document.getElementById("campoProvincia").value = valla.provincia?.id ?? "";
+        document.getElementById("campoProvincia").disabled = true;
+
+        document.getElementById("checkCodigoManual").checked = false;
+        document.getElementById("checkCodigoManual").disabled = true;
+        document.getElementById("codigoPreview").readOnly = true;
+        document.getElementById("codigoPreview").value = valla.codigo;
+
+        document.getElementById("campoReferencia").value = valla.referencia;
+        document.getElementById("campoLatitud").value = formatDMS(Number(valla.latitud), "lat");
+        document.getElementById("campoLongitud").value = formatDMS(Number(valla.longitud), "lon");
+        document.getElementById("campoTamano").value = valla.tamano ?? "";
+        document.getElementById("campoPrecioNormal").value = valla.precio_normal ?? "";
+        document.getElementById("campoPrecioMinimo").value = valla.precio_minimo ?? "";
+
+        document.querySelector("#modalNuevaValla .modal-title").textContent = "Editar valla";
+        document.getElementById("btnGuardarValla").textContent = "Guardar cambios";
+        document.querySelector(".sigc-carga-masiva-header").classList.add("d-none");
+        document.getElementById("checkMantenerProvincia").closest(".form-check").classList.add("d-none");
+
+        const modal = new bootstrap.Modal(document.getElementById("modalNuevaValla"));
+
+        modal.show();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        showError("No se pudo cargar la valla para editar.");
+
+    }
+
+}
+
+async function manejarSubmitEditarValla(evento) {
+
+    evento.preventDefault();
+
+    const errorBox = document.getElementById("formNuevaVallaError");
+
+    errorBox.classList.add("d-none");
+
+    const latitud = parseDMS(document.getElementById("campoLatitud").value);
+
+    const longitud = parseDMS(document.getElementById("campoLongitud").value);
+
+    if (latitud === null || longitud === null) {
+
+        errorBox.textContent = "Latitud y longitud deben tener el formato 10°00'03.0\"N";
+
+        errorBox.classList.remove("d-none");
+
+        return;
+
+    }
+
+    const datos = {
+
+        referencia: document.getElementById("campoReferencia").value.trim(),
+
+        latitud: latitud,
+
+        longitud: longitud,
+
+        tamano: document.getElementById("campoTamano").value.trim() || null,
+
+        precio_normal: document.getElementById("campoPrecioNormal").value || null,
+
+        precio_minimo: document.getElementById("campoPrecioMinimo").value || null
+
+    };
+
+    const boton = document.getElementById("btnGuardarValla");
+
+    boton.disabled = true;
+
+    boton.textContent = "Guardando...";
+
+    try {
+
+        const vallaActualizada = await api.actualizar(vallaEditandoId, datos);
+
+        bootstrap.Modal.getInstance(document.getElementById("modalNuevaValla")).hide();
+
+        mostrarMensajeExito(`Valla ${vallaActualizada.codigo} actualizada`);
+
+        await cargarVallas();
+
+        cargarResumen();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        errorBox.textContent = error?.message || "No se pudo actualizar la valla.";
+
+        errorBox.classList.remove("d-none");
+
+    }
+
+    finally {
+
+        boton.disabled = false;
+
+        boton.textContent = "Guardar cambios";
+
+    }
+
+}
+
+function registrarResetModalNuevaValla() {
+
+    document.getElementById("modalNuevaValla").addEventListener("hidden.bs.modal", () => {
+
+        vallaEditandoId = null;
+
+        document.getElementById("campoProvincia").disabled = false;
+
+        document.getElementById("checkCodigoManual").disabled = false;
+
+        document.querySelector("#modalNuevaValla .modal-title").textContent = "Nueva valla";
+
+        document.getElementById("btnGuardarValla").textContent = "Agregar";
+
+        document.querySelector(".sigc-carga-masiva-header").classList.remove("d-none");
+
+        document.getElementById("checkMantenerProvincia").closest(".form-check").classList.remove("d-none");
+
+        limpiarFormularioNuevaValla({ mantenerProvincia: document.getElementById("checkMantenerProvincia").checked });
+
+    });
+
+}
+
+async function manejarArchivar(id) {
+
+    const confirmar = window.confirm("¿Archivar esta valla? Pasará a estado Inactiva.");
+
+    if (!confirmar) {
+
+        return;
+
+    }
+
+    try {
+
+        await api.cambiarEstado(id, "Inactiva");
+
+        mostrarMensajeExito("Valla archivada");
+
+        await cargarVallas();
+
+        cargarResumen();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        showError("No se pudo archivar la valla.");
+
+    }
+
+}
+
+function abrirMiniReserva(id) {
+
+    const valla = vallasState.vallas.find((v) => v.id === id);
+
+    vallaReservandoId = id;
+
+    document.getElementById("reservarValaCodigo").textContent = valla ? `(${valla.codigo})` : "";
+
+    document.getElementById("formReservarValla").reset();
+
+    document.getElementById("campoReservaDias").value = 3;
+
+    document.getElementById("formReservarVallaError").classList.add("d-none");
+
+    const modal = new bootstrap.Modal(document.getElementById("modalReservarValla"));
+
+    modal.show();
+
+}
+
+async function manejarSubmitReservarValla(evento) {
+
+    evento.preventDefault();
+
+    const errorBox = document.getElementById("formReservarVallaError");
+
+    errorBox.classList.add("d-none");
+
+    const datos = {
+
+        valla_id: vallaReservandoId,
+
+        cliente_nombre: document.getElementById("campoReservaCliente").value.trim(),
+
+        dias: Number(document.getElementById("campoReservaDias").value) || 3
+
+    };
+
+    try {
+
+        await reservasApi.crear(datos);
+
+        bootstrap.Modal.getInstance(document.getElementById("modalReservarValla")).hide();
+
+        mostrarMensajeExito("Valla reservada");
+
+        await cargarVallas();
+
+        cargarResumen();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        const mensaje = error?.data?.message || error?.message || "No se pudo crear la reserva.";
+
+        errorBox.textContent = mensaje;
+
+        errorBox.classList.remove("d-none");
+
+    }
+
+}
+
+function registrarFormularioReservarValla() {
+
+    document.getElementById("formReservarValla").addEventListener("submit", manejarSubmitReservarValla);
+
+}
+
 function registrarClicksListado() {
 
-    document.getElementById("tablaVallasBody").addEventListener("click", (evento) => {
+    function manejarClick(evento) {
 
-        const fila = evento.target.closest("tr[data-id]");
+        const botonEditar = evento.target.closest("[data-editar]");
+
+        const botonArchivar = evento.target.closest("[data-archivar]");
+
+        const botonReservar = evento.target.closest("[data-reservar]");
+
+        const botonContrato = evento.target.closest("[data-contrato]");
+
+        if (botonEditar) {
+
+            abrirEdicion(Number(botonEditar.dataset.editar));
+
+            return;
+
+        }
+
+        if (botonArchivar && !botonArchivar.disabled) {
+
+            manejarArchivar(Number(botonArchivar.dataset.archivar));
+
+            return;
+
+        }
+
+        if (botonReservar && !botonReservar.disabled) {
+
+            abrirMiniReserva(Number(botonReservar.dataset.reservar));
+
+            return;
+
+        }
+
+        if (botonContrato) {
+
+            return;
+
+        }
+
+        const fila = evento.target.closest("tr[data-id]") || evento.target.closest(".sigc-valla-card[data-id]");
 
         if (fila) {
 
@@ -434,19 +889,11 @@ function registrarClicksListado() {
 
         }
 
-    });
+    }
 
-    document.getElementById("listaVallasMovil").addEventListener("click", (evento) => {
+    document.getElementById("tablaVallasBody").addEventListener("click", manejarClick);
 
-        const tarjeta = evento.target.closest(".sigc-valla-card[data-id]");
-
-        if (tarjeta) {
-
-            abrirDetalle(Number(tarjeta.dataset.id));
-
-        }
-
-    });
+    document.getElementById("listaVallasMovil").addEventListener("click", manejarClick);
 
 }
 
@@ -538,9 +985,13 @@ export function registerEvents() {
 
     registrarSidebar();
 
-    registrarCheckCodigoManual();       // nueva
+    registrarCheckCodigoManual();
 
-    registrarFormularioNuevaValla();    // nueva
+    registrarFormularioNuevaValla();
+
+    registrarFormularioReservarValla();
+
+    registrarResetModalNuevaValla();
 
     cargarProvincias();
 

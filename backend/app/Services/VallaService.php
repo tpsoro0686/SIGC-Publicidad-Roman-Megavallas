@@ -14,6 +14,7 @@ class VallaService
     private const PREFIJOS_PROVINCIA = [
         'San Jose' => 'SJ',
         'Alajuela' => 'A',
+        'San Carlos' => 'Q',
         'Cartago' => 'C',
         'Heredia' => 'H',
         'Guanacaste' => 'G',
@@ -107,5 +108,5 @@ class VallaService
         ];
     }
 
-    
+
 }

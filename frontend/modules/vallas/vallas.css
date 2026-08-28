@@ -454,7 +454,7 @@ body {
     margin-bottom: 16px;
 }
 
-.sigc-detalle-codigo { font-size: 1.1rem; font-weight: 700; }
+.sigc-detalle-codigo { font-size: 1.1rem; font-weight: 500; }
 .sigc-detalle-provincia { font-size: .8rem; color: var(--sigc-text-muted); }
 
 .sigc-detalle-fotos {
@@ -535,12 +535,17 @@ body {
 }
 
 .sigc-btn-success:hover {
-    background: #c41515;
+    background: #178a5c;
     color: #fff;
 }
 
-/* TEMPORAL: carga inicial masiva, quitar después */
-/* TEMPORAL: carga inicial masiva, quitar después */
+.sigc-modal-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+}
+
 .sigc-carga-masiva-header {
     display: flex;
     flex-direction: column;
@@ -548,32 +553,154 @@ body {
     gap: 2px;
     font-size: .72rem;
     color: var(--sigc-blue);
-    margin-left: auto;
-    margin-right: 0px;
     text-align: right;
 }
+
+
 
 .sigc-carga-masiva-header strong {
     color: var(--sigc-blue);
 }
 
-.modal-dialog-scrollable .modal-body {
-    overflow-y: auto;
-    max-height: 85vh;
-}
-
 .sigc-codigo-preview {
-    background: var(--sigc-blue-bg);
-    border: 1px solid var(--sigc-blue);
-    border-radius: 8px;
-    padding: 12px 14px;
-    font-weight: 800;
-    font-size: 1.3rem;
-    letter-spacing: .03em;
-    color: var(--sigc-blue);
-    text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: var(--sigc-blue-bg);
+  border: 1px solid var(--sigc-blue);
+  border-radius: 8px;
+  padding: 0.375rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: .01em;
+  color: var(--sigc-blue);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: calc(1.5em + 0.75rem + 2px);
 }
 
-#modalNuevaValla.modal {
-    overflow: hidden;
+.sigc-codigo-preview:not([readonly]) {
+  background: #fff;
+  cursor: text;
+}
+
+#modalNuevaValla form {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+#modalNuevaValla .modal-body {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+#modalNuevaValla .modal-header {
+    background: linear-gradient(135deg, var(--sigc-red-dark), var(--sigc-red));
+    border-bottom: none;
+}
+
+#modalNuevaValla .modal-title {
+    color: #fff;
+}
+
+#modalNuevaValla .sigc-carga-masiva-header,
+#modalNuevaValla .sigc-carga-masiva-header strong {
+    color: #fff;
+}
+
+#modalNuevaValla .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.sigc-mensaje-exito {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1200;
+    width: 200px;
+    padding: 28px 20px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: sigcMensajeIn .2s ease forwards;
+}
+
+.sigc-mensaje-exito.hide {
+    animation: sigcMensajeOut .2s ease forwards;
+}
+
+.sigc-mensaje-exito__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--sigc-green-bg);
+    color: var(--sigc-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 14px;
+}
+
+.sigc-mensaje-exito__codigo {
+    color: var(--sigc-green);
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.sigc-mensaje-exito__sub {
+    color: var(--sigc-green);
+    font-size: .82rem;
+    margin-top: 2px;
+}
+
+@keyframes sigcMensajeIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(.9); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes sigcMensajeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.sigc-icon-btn--editar {
+    background: var(--sigc-blue-bg);
+    color: var(--sigc-blue);
+}
+
+.sigc-icon-btn--archivar {
+    background: var(--sigc-amber-bg);
+    color: var(--sigc-amber);
+}
+
+.sigc-icon-btn--reservar {
+    background: var(--sigc-green-bg);
+    color: var(--sigc-green);
+}
+
+.sigc-icon-btn--contrato {
+    background: var(--sigc-red-bg);
+    color: var(--sigc-red);
+}
+
+.sigc-icon-btn--editar:hover { background: var(--sigc-blue); color: #fff; }
+.sigc-icon-btn--archivar:hover { background: var(--sigc-amber); color: #fff; }
+.sigc-icon-btn--reservar:hover { background: var(--sigc-green); color: #fff; }
+.sigc-icon-btn--contrato:hover { background: var(--sigc-red); color: #fff; }
+
+.sigc-icon-btn:disabled {
+    opacity: .35;
+    cursor: not-allowed;
 }

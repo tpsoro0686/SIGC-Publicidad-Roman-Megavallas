@@ -9,7 +9,7 @@ class ProvinciaSeeder extends Seeder
 {
     public function run(): void
     {
-        $provincias = ['San Jose', 'Alajuela', 'Cartago', 'Heredia', 'Guanacaste', 'Puntarenas', 'Limon'];
+        $provincias = ['San Jose', 'Alajuela', 'San Carlos', 'Cartago', 'Heredia', 'Guanacaste', 'Puntarenas', 'Limon'];
 
         foreach ($provincias as $nombre) {
             Provincia::firstOrCreate(['nombre' => $nombre]);
