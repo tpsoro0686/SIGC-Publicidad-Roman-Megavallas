@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VallaController;
 use App\Http\Controllers\ProvinciaController;
+use App\Http\Controllers\ReservaController;
+use App\Http\Controllers\ClienteController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -27,4 +29,21 @@ Route::middleware('auth:sanctum')->prefix('vallas')->group(function () {
     Route::get('/{valla}', [VallaController::class, 'show']);
     Route::put('/{valla}', [VallaController::class, 'update']);
     Route::patch('/{valla}/estado', [VallaController::class, 'cambiarEstado']);
+});
+
+Route::middleware('auth:sanctum')->prefix('reservas')->group(function () {
+    Route::get('/', [ReservaController::class, 'index']);
+    Route::get('/resumen', [ReservaController::class, 'resumen']);
+    Route::post('/', [ReservaController::class, 'store']);
+    Route::get('/{reserva}', [ReservaController::class, 'show']);
+    Route::patch('/{reserva}/cancelar', [ReservaController::class, 'cancelar']);
+    Route::patch('/{reserva}/convertir', [ReservaController::class, 'convertir']);
+});
+
+Route::middleware('auth:sanctum')->prefix('clientes')->group(function () {
+    Route::get('/', [ClienteController::class, 'index']);
+    Route::get('/resumen', [ClienteController::class, 'resumen']);
+    Route::post('/', [ClienteController::class, 'store']);
+    Route::get('/{cliente}', [ClienteController::class, 'show']);
+    Route::put('/{cliente}', [ClienteController::class, 'update']);
 });
