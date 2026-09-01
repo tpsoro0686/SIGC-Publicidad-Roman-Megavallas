@@ -14,6 +14,8 @@ import { renderTarjetas } from "./render/tarjetas.js";
 
 import { showError } from "./render/messages.js";
 
+import * as contratosApi from "../contratos/api.js";
+
 
 
 function mostrarMensajeExito(texto) {
@@ -259,13 +261,53 @@ async function manejarCancelar(id) {
 
 }
 
-async function manejarConvertir(id) {
+let reservaConvirtiendoId = null;
+
+function abrirConvertir(id) {
+
+    const reserva = reservasState.reservas.find((r) => r.id === id);
+
+    reservaConvirtiendoId = id;
+
+    document.getElementById("convertirValaCodigo").textContent = reserva ? `(${reserva.valla.codigo})` : "";
+
+    document.getElementById("formConvertirReserva").reset();
+
+    document.getElementById("formConvertirReservaError").classList.add("d-none");
+
+    const modal = new bootstrap.Modal(document.getElementById("modalConvertirReserva"));
+
+    modal.show();
+
+}
+
+async function manejarSubmitConvertir(evento) {
+
+    evento.preventDefault();
+
+    const errorBox = document.getElementById("formConvertirReservaError");
+
+    errorBox.classList.add("d-none");
+
+    const datos = {
+
+        reserva_id: reservaConvirtiendoId,
+
+        fecha_inicio: document.getElementById("campoConvertirFechaInicio").value,
+
+        plazo_meses: Number(document.getElementById("campoConvertirPlazo").value),
+
+        monto_usd: Number(document.getElementById("campoConvertirMonto").value)
+
+    };
 
     try {
 
-        await api.convertir(id);
+        const contratoCreado = await contratosApi.crear(datos);
 
-        mostrarMensajeExito("Reserva convertida a contrato");
+        bootstrap.Modal.getInstance(document.getElementById("modalConvertirReserva")).hide();
+
+        mostrarMensajeExito(`Contrato ${contratoCreado.codigo} creado`);
 
         await cargarReservas();
 
@@ -277,9 +319,17 @@ async function manejarConvertir(id) {
 
         console.error(error);
 
-        showError("No se pudo convertir la reserva.");
+        errorBox.textContent = error?.data?.message || "No se pudo crear el contrato.";
+
+        errorBox.classList.remove("d-none");
 
     }
+
+}
+
+function registrarFormularioConvertir() {
+
+    document.getElementById("formConvertirReserva").addEventListener("submit", manejarSubmitConvertir);
 
 }
 
@@ -299,7 +349,7 @@ function registrarClicksListado() {
 
         if (botonConvertir) {
 
-            manejarConvertir(Number(botonConvertir.dataset.convertir));
+            abrirConvertir(Number(botonConvertir.dataset.convertir));
 
         }
 
@@ -404,6 +454,8 @@ export function registerEvents() {
     registrarSidebar();
 
     registrarFormularioNuevaReserva();
+
+    registrarFormularioConvertir();
 
     cargarResumen();
 

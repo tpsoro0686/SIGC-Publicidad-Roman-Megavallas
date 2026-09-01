@@ -235,6 +235,47 @@
         </div>
     </div>
 
+        <!-- Modal: Convertir reserva a contrato -->
+    <div class="modal fade" id="modalConvertirReserva" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Convertir a contrato <span id="convertirValaCodigo"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form id="formConvertirReserva">
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="campoConvertirFechaInicio" class="form-label">Fecha de inicio</label>
+                            <input type="date" id="campoConvertirFechaInicio" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="campoConvertirPlazo" class="form-label">Plazo (meses)</label>
+                            <input type="number" min="1" max="120" id="campoConvertirPlazo" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="campoConvertirMonto" class="form-label">Monto total (USD)</label>
+                            <input type="number" step="0.01" min="0.01" id="campoConvertirMonto" class="form-control" required>
+                        </div>
+
+                        <div class="alert alert-danger d-none" id="formConvertirReservaError"></div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn sigc-btn-primary">Crear contrato</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="../../assets/js/features/reservas/index.js"></script>

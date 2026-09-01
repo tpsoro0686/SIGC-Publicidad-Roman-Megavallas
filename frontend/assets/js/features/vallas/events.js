@@ -18,9 +18,13 @@ import { showError, showSuccess } from "./render/messages.js";
 
 import * as reservasApi from "../reservas/api.js";
 
+import * as contratosApi from "../contratos/api.js";
+
 let vallaEditandoId = null;
 
 let vallaReservandoId = null;
+
+let vallaContratandoId = null;
 
 function aplicarFiltroLocal(vallas) {
 
@@ -833,6 +837,80 @@ async function manejarSubmitReservarValla(evento) {
 
 }
 
+function abrirMiniContrato(id) {
+
+    const valla = vallasState.vallas.find((v) => v.id === id);
+
+    vallaContratandoId = id;
+
+    document.getElementById("contratoValaCodigo").textContent = valla ? `(${valla.codigo})` : "";
+
+    document.getElementById("formContratoValla").reset();
+
+    document.getElementById("formContratoValaError").classList.add("d-none");
+
+    const modal = new bootstrap.Modal(document.getElementById("modalContratoValla"));
+
+    modal.show();
+
+}
+
+async function manejarSubmitContratoValla(evento) {
+
+    evento.preventDefault();
+
+    const errorBox = document.getElementById("formContratoValaError");
+
+    errorBox.classList.add("d-none");
+
+    const datos = {
+
+        valla_id: vallaContratandoId,
+
+        cliente_nombre: document.getElementById("campoContratoValaCliente").value.trim(),
+
+        fecha_inicio: document.getElementById("campoContratoValaFechaInicio").value,
+
+        plazo_meses: Number(document.getElementById("campoContratoValaPlazo").value),
+
+        monto_usd: Number(document.getElementById("campoContratoValaMonto").value)
+
+    };
+
+    try {
+
+        const contratoCreado = await contratosApi.crear(datos);
+
+        bootstrap.Modal.getInstance(document.getElementById("modalContratoValla")).hide();
+
+        mostrarMensajeExito(`Contrato ${contratoCreado.codigo} creado`);
+
+        await cargarVallas();
+
+        cargarResumen();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        const mensaje = error?.data?.message || error?.message || "No se pudo crear el contrato.";
+
+        errorBox.textContent = mensaje;
+
+        errorBox.classList.remove("d-none");
+
+    }
+
+}
+
+function registrarFormularioContratoValla() {
+
+    document.getElementById("formContratoValla").addEventListener("submit", manejarSubmitContratoValla);
+
+}
+
 function registrarFormularioReservarValla() {
 
     document.getElementById("formReservarValla").addEventListener("submit", manejarSubmitReservarValla);
@@ -875,7 +953,9 @@ function registrarClicksListado() {
 
         }
 
-        if (botonContrato) {
+        if (botonContrato && !botonContrato.disabled) {
+
+            abrirMiniContrato(Number(botonContrato.dataset.contrato));
 
             return;
 
@@ -990,6 +1070,8 @@ export function registerEvents() {
     registrarFormularioNuevaValla();
 
     registrarFormularioReservarValla();
+
+    registrarFormularioContratoValla();
 
     registrarResetModalNuevaValla();
 

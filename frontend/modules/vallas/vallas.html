@@ -364,6 +364,52 @@
         </div>
     </div>
 
+        <!-- Modal: Generar contrato (mini, sin salir de Vallas) -->
+    <div class="modal fade" id="modalContratoValla" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Generar contrato <span id="contratoValaCodigo"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form id="formContratoValla">
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="campoContratoValaCliente" class="form-label">Nombre del cliente</label>
+                            <input type="text" id="campoContratoValaCliente" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="campoContratoValaFechaInicio" class="form-label">Fecha de inicio</label>
+                            <input type="date" id="campoContratoValaFechaInicio" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="campoContratoValaPlazo" class="form-label">Plazo (meses)</label>
+                            <input type="number" min="1" max="120" id="campoContratoValaPlazo" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="campoContratoValaMonto" class="form-label">Monto total (USD)</label>
+                            <input type="number" step="0.01" min="0.01" id="campoContratoValaMonto" class="form-control" required>
+                        </div>
+
+                        <div class="alert alert-danger d-none" id="formContratoValaError"></div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn sigc-btn-primary">Crear contrato</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Valla creada con éxito -->
     <div class="modal fade" id="modalExitoValla" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">

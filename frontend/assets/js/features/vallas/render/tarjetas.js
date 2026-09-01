@@ -40,7 +40,7 @@ export function renderTarjetas(vallas) {
                     <i data-lucide="calendar-plus"></i>
                 </button>
 
-                <button type="button" class="sigc-icon-btn sigc-icon-btn--contrato" data-contrato="${valla.id}" title="Generar contrato" aria-label="Generar contrato">
+                <button type="button" class="sigc-icon-btn sigc-icon-btn--contrato" data-contrato="${valla.id}" title="Generar contrato" aria-label="Generar contrato" ${valla.estado !== "Disponible" ? "disabled" : ""}>
                     <i data-lucide="file-text"></i>
                 </button>
 
