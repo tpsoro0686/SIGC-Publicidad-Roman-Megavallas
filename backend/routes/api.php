@@ -5,6 +5,7 @@ use App\Http\Controllers\VallaController;
 use App\Http\Controllers\ProvinciaController;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ContratoController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -46,4 +47,13 @@ Route::middleware('auth:sanctum')->prefix('clientes')->group(function () {
     Route::post('/', [ClienteController::class, 'store']);
     Route::get('/{cliente}', [ClienteController::class, 'show']);
     Route::put('/{cliente}', [ClienteController::class, 'update']);
+});
+Route::middleware('auth:sanctum')->prefix('contratos')->group(function () {
+    Route::get('/', [ContratoController::class, 'index']);
+    Route::get('/resumen', [ContratoController::class, 'resumen']);
+    Route::post('/', [ContratoController::class, 'store']);
+    Route::get('/{contrato}', [ContratoController::class, 'show']);
+    Route::patch('/{contrato}/finalizar', [ContratoController::class, 'finalizar']);
+    Route::patch('/{contrato}/renovar', [ContratoController::class, 'renovar']);
+    Route::delete('/{contrato}', [ContratoController::class, 'destroy']);
 });
