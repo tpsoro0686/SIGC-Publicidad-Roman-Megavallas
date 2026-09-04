@@ -16,8 +16,10 @@ class VallaResource extends JsonResource
             'latitud' => $this->latitud,
             'longitud' => $this->longitud,
             'tamano' => $this->tamano,
+            'vehiculos_diarios' => $this->vehiculos_diarios,
             'precio_normal' => $this->precio_normal,
             'precio_minimo' => $this->precio_minimo,
+            'precio_instalacion' => $this->precio_instalacion,
             'estado' => $this->estado,
             'provincia' => new ProvinciaResource($this->whenLoaded('provincia')),
             'fotos' => FotoVallaResource::collection($this->whenLoaded('fotos')),
@@ -39,6 +41,25 @@ class VallaResource extends JsonResource
                     'dias_restantes' => (int) now()->diffInDays($this->contratoActivo->fecha_fin, false),
                 ];
             }),
+
+             'disponible_el' => $this->when(true, function () {
+
+                if ($this->relationLoaded('contratoActivo') && $this->contratoActivo) {
+
+                    return $this->contratoActivo->fecha_fin;
+
+                }
+
+                if ($this->relationLoaded('reservaActiva') && $this->reservaActiva) {
+
+                    return $this->reservaActiva->fecha_vencimiento;
+
+                }
+
+                return null;
+
+            }),
+
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

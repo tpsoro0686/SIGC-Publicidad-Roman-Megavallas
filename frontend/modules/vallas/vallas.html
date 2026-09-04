@@ -303,6 +303,11 @@
                             <input type="text" id="campoTamano" class="form-control" placeholder="Ej. 6x8m">
                         </div>
 
+                        <div class="mb-3">
+                            <label for="campoVehiculosDiarios" class="form-label">Vehículos diarios</label>
+                            <input type="number" min="0" id="campoVehiculosDiarios" class="form-control" placeholder="Ej. 94800">
+                        </div>
+
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label for="campoPrecioNormal" class="form-label">Precio normal (USD)</label>
@@ -312,6 +317,11 @@
                                 <label for="campoPrecioMinimo" class="form-label">Precio mínimo (USD)</label>
                                 <input type="number" step="0.01" min="0" id="campoPrecioMinimo" class="form-control">
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="campoPrecioInstalacion" class="form-label">Impresión e instalación (USD)</label>
+                            <input type="number" step="0.01" min="0" id="campoPrecioInstalacion" class="form-control">
                         </div>
 
                         <div class="alert alert-danger d-none" id="formNuevaVallaError"></div>

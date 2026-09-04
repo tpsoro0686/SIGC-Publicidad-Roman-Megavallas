@@ -1,6 +1,7 @@
 /**
  * ==========================================
  * Render del panel de detalle de una valla
+ * (estilo "flyer" de Publicidad Román)
  * ==========================================
  */
 
@@ -27,6 +28,38 @@ function formatearFecha(fecha) {
     }
 
     return new Date(fecha).toLocaleDateString("es-CR");
+
+}
+
+function formatDMS(decimal, tipo) {
+
+    if (decimal === null || decimal === undefined) {
+
+        return "No definida";
+
+    }
+
+    const numero = Number(decimal);
+
+    const hemisferio = tipo === "lat"
+        ? (numero >= 0 ? "N" : "S")
+        : (numero >= 0 ? "E" : "W");
+
+    const absoluto = Math.abs(numero);
+
+    const grados = Math.floor(absoluto);
+
+    const minutosDecimal = (absoluto - grados) * 60;
+
+    const minutos = Math.floor(minutosDecimal);
+
+    const segundos = (minutosDecimal - minutos) * 60;
+
+    const minutosStr = String(minutos).padStart(2, "0");
+
+    const segundosStr = segundos.toFixed(1).padStart(4, "0");
+
+    return `${grados}°${minutosStr}'${segundosStr}"${hemisferio}`;
 
 }
 
@@ -94,22 +127,20 @@ function bloqueContrato(contrato) {
 
 }
 
-function bloqueFotos(fotos) {
+function bloqueFoto(fotos) {
 
-    if (!fotos || fotos.length === 0) {
+    const primera = fotos && fotos.length > 0 ? fotos[0] : null;
 
-        return `<p class="sigc-detalle-sin-fotos">Sin fotografías cargadas.</p>`;
+    if (primera) {
+
+        return `<img class="sigc-flyer__foto" src="${primera.url}" alt="Foto de la valla">`;
 
     }
 
     return `
-
-        <div class="sigc-detalle-fotos">
-
-            ${fotos.map((foto) => `<img src="${foto.url}" alt="Foto de la valla">`).join("")}
-
+        <div class="sigc-flyer__foto sigc-flyer__foto--vacia">
+            <i data-lucide="image-off"></i>
         </div>
-
     `;
 
 }
@@ -128,17 +159,69 @@ export function renderDetalle(valla) {
             ${badgeEstado(valla.estado)}
         </div>
 
-        ${bloqueFotos(valla.fotos)}
+        <div class="sigc-flyer">
+
+            <div class="sigc-flyer__foto-wrap">
+
+                <span class="sigc-flyer__cod">COD ${valla.codigo}</span>
+
+                <div class="sigc-flyer__logo">
+                    <i data-lucide="map-pin"></i>
+                    <span>ROMÁN</span>
+                </div>
+
+                ${bloqueFoto(valla.fotos)}
+
+            </div>
+
+            <div class="sigc-flyer__titulo">${valla.referencia}</div>
+
+            <div class="sigc-flyer__boxes">
+
+                <div class="sigc-flyer__box">
+                    <div class="sigc-flyer__box-label">Ubicación</div>
+                    <div class="sigc-flyer__box-value">${valla.referencia}</div>
+                </div>
+
+                <div class="sigc-flyer__box">
+                    <div class="sigc-flyer__box-label">Geolocalización</div>
+                    <div class="sigc-flyer__box-value">Lat. ${formatDMS(valla.latitud, "lat")} &middot; Lon. ${formatDMS(valla.longitud, "lon")}</div>
+                </div>
+
+                <div class="sigc-flyer__box">
+                    <div class="sigc-flyer__box-label">Medidas</div>
+                    <div class="sigc-flyer__box-value">${valla.tamano ?? "No definidas"}</div>
+                </div>
+
+            </div>
+
+            ${valla.disponible_el ? `
+                <div class="sigc-flyer__disponible">Disponible el: ${formatearFecha(valla.disponible_el)}</div>
+            ` : ""}
+
+            ${valla.vehiculos_diarios ? `
+                <div class="sigc-flyer__vehiculos">Vehículos diarios: <strong>${Number(valla.vehiculos_diarios).toLocaleString("es-CR")}</strong></div>
+            ` : ""}
+
+            <div class="sigc-flyer__precios">
+
+                <div class="sigc-flyer__precio-box">
+                    <div class="sigc-flyer__precio-label">Renta mensual</div>
+                    <div class="sigc-flyer__precio-value">${formatearMoneda(valla.precio_normal)}</div>
+                </div>
+
+                <div class="sigc-flyer__precio-box">
+                    <div class="sigc-flyer__precio-label">Impresión e instalación</div>
+                    <div class="sigc-flyer__precio-value">${formatearMoneda(valla.precio_instalacion)}</div>
+                </div>
+
+            </div>
+
+        </div>
 
         <div class="sigc-detalle-seccion">
-            <h4>Información general</h4>
+            <h4>Información adicional</h4>
             <dl class="sigc-detalle-lista">
-                <dt>Referencia</dt>
-                <dd>${valla.referencia}</dd>
-                <dt>Tamaño</dt>
-                <dd>${valla.tamano ?? "No definido"}</dd>
-                <dt>Precio normal</dt>
-                <dd>${formatearMoneda(valla.precio_normal)}</dd>
                 <dt>Precio mínimo preaprobado</dt>
                 <dd>${formatearMoneda(valla.precio_minimo)}</dd>
             </dl>

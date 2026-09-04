@@ -423,6 +423,8 @@ body {
     .sigc-detalle-panel {
         position: sticky;
         top: 84px;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
     }
     .sigc-detalle-panel__back { display: none; }
 }
@@ -703,4 +705,156 @@ body {
 .sigc-icon-btn:disabled {
     opacity: .35;
     cursor: not-allowed;
+}
+
+/* ===== Panel de detalle estilo "flyer" ===== */
+
+.sigc-flyer {
+    margin-bottom: 16px;
+}
+
+.sigc-flyer__foto-wrap {
+    position: relative;
+    border-radius: 0 0 48px 0;
+    overflow: hidden;
+    background: var(--sigc-bg);
+}
+
+.sigc-flyer__foto {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+}
+
+.sigc-flyer__foto--vacia {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sigc-text-muted);
+}
+
+.sigc-flyer__foto--vacia i {
+    width: 32px;
+    height: 32px;
+}
+
+.sigc-flyer__cod {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #fff;
+    color: var(--sigc-red);
+    border: 1px solid var(--sigc-red);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+}
+
+.sigc-flyer__logo {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,.6);
+}
+
+.sigc-flyer__logo i {
+    width: 18px;
+    height: 18px;
+}
+
+.sigc-flyer__logo span {
+    font-size: .6rem;
+    font-weight: 800;
+    letter-spacing: .03em;
+}
+
+.sigc-flyer__titulo {
+    background: var(--sigc-red);
+    color: #fff;
+    font-weight: 800;
+    text-align: center;
+    padding: 10px 14px;
+    font-size: .85rem;
+    line-height: 1.3;
+}
+
+.sigc-flyer__boxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.sigc-flyer__box {
+    border: 1.5px solid var(--sigc-red);
+    border-radius: 12px;
+    padding: 8px 12px;
+}
+
+.sigc-flyer__box-label {
+    font-size: .66rem;
+    font-weight: 800;
+    color: var(--sigc-red);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    margin-bottom: 2px;
+}
+
+.sigc-flyer__box-value {
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.sigc-flyer__disponible {
+    background: var(--sigc-red);
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 10px;
+    font-size: .8rem;
+}
+
+.sigc-flyer__vehiculos {
+    text-align: center;
+    font-size: .8rem;
+    margin-top: 10px;
+}
+
+.sigc-flyer__vehiculos strong {
+    color: var(--sigc-red);
+}
+
+.sigc-flyer__precios {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.sigc-flyer__precio-box {
+    border: 1.5px solid var(--sigc-red);
+    border-radius: 10px;
+    padding: 8px;
+    text-align: center;
+}
+
+.sigc-flyer__precio-label {
+    font-size: .62rem;
+    color: var(--sigc-text-muted);
+    margin-bottom: 2px;
+}
+
+.sigc-flyer__precio-value {
+    font-size: .82rem;
+    font-weight: 800;
+    color: var(--sigc-red);
 }

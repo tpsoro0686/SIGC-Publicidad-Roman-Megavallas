@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Valla extends Model
 {
-    protected $fillable = ['provincia_id', 'codigo', 'referencia', 'latitud', 'longitud', 'tamano', 'precio_normal', 'precio_minimo', 'estado'];
+    protected $fillable = ['provincia_id', 'codigo', 'referencia', 'latitud', 'longitud', 'tamano', 'vehiculos_diarios', 'precio_normal', 'precio_minimo', 'precio_instalacion', 'estado'];
 
     public function provincia(): BelongsTo
     {

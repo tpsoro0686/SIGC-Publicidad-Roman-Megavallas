@@ -455,10 +455,13 @@ async function manejarSubmitNuevaValla(evento) {
 
         tamano: document.getElementById("campoTamano").value.trim() || null,
 
+        vehiculos_diarios: document.getElementById("campoVehiculosDiarios").value || null,
+
         precio_normal: document.getElementById("campoPrecioNormal").value || null,
 
-        precio_minimo: document.getElementById("campoPrecioMinimo").value || null
+        precio_minimo: document.getElementById("campoPrecioMinimo").value || null,
 
+        precio_instalacion: document.getElementById("campoPrecioInstalacion").value || null
     };
 
     const codigoManual = document.getElementById("checkCodigoManual").checked;
@@ -613,8 +616,15 @@ async function abrirEdicion(id) {
         document.getElementById("campoLatitud").value = formatDMS(Number(valla.latitud), "lat");
         document.getElementById("campoLongitud").value = formatDMS(Number(valla.longitud), "lon");
         document.getElementById("campoTamano").value = valla.tamano ?? "";
+        document.getElementById("campoTamano").value = valla.tamano ?? "";
+
+        document.getElementById("campoVehiculosDiarios").value = valla.vehiculos_diarios ?? "";
         document.getElementById("campoPrecioNormal").value = valla.precio_normal ?? "";
         document.getElementById("campoPrecioMinimo").value = valla.precio_minimo ?? "";
+
+        document.getElementById("campoPrecioMinimo").value = valla.precio_minimo ?? "";
+
+        document.getElementById("campoPrecioInstalacion").value = valla.precio_instalacion ?? "";
 
         document.querySelector("#modalNuevaValla .modal-title").textContent = "Editar valla";
         document.getElementById("btnGuardarValla").textContent = "Guardar cambios";
@@ -669,10 +679,13 @@ async function manejarSubmitEditarValla(evento) {
 
         tamano: document.getElementById("campoTamano").value.trim() || null,
 
+        vehiculos_diarios: document.getElementById("campoVehiculosDiarios").value || null,
+
         precio_normal: document.getElementById("campoPrecioNormal").value || null,
 
-        precio_minimo: document.getElementById("campoPrecioMinimo").value || null
+        precio_minimo: document.getElementById("campoPrecioMinimo").value || null,
 
+        precio_instalacion: document.getElementById("campoPrecioInstalacion").value || null
     };
 
     const boton = document.getElementById("btnGuardarValla");

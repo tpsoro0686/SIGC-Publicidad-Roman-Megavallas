@@ -63,6 +63,18 @@ const CSS_OSCURO = `
 [data-theme="dark"] h4,
 [data-theme="dark"] h5,
 [data-theme="dark"] h6 { color:#E7E8EC !important; }
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 { color:#E7E8EC !important; }
+[data-theme="dark"] .sigc-flyer__box-value {
+    color:#E7E8EC !important;
+}
+[data-theme="dark"] .sigc-flyer__precio-label {
+    color:#9A9DAA !important;
+}
 `;
 
 function inyectarEstilo() {

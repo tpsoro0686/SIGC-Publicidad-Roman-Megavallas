@@ -20,6 +20,8 @@ class UpdateVallaRequest extends FormRequest
             'tamano' => ['nullable', 'string', 'max:50'],
             'precio_normal' => ['nullable', 'numeric', 'min:0'],
             'precio_minimo' => ['nullable', 'numeric', 'min:0'],
+            'vehiculos_diarios' => ['nullable', 'integer', 'min:0'],
+            'precio_instalacion' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 }

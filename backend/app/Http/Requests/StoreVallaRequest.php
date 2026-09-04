@@ -22,6 +22,8 @@ class StoreVallaRequest extends FormRequest
             'codigo' => ['nullable', 'string', 'max:30', 'unique:vallas,codigo'],
             'precio_normal' => ['nullable', 'numeric', 'min:0'],
             'precio_minimo' => ['nullable', 'numeric', 'min:0'],
+            'vehiculos_diarios' => ['nullable', 'integer', 'min:0'],
+            'precio_instalacion' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 }
