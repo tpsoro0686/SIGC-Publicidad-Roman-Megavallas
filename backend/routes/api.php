@@ -6,6 +6,9 @@ use App\Http\Controllers\ProvinciaController;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ContratoController;
+use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\RolController;
+use App\Http\Controllers\PerfilController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -56,4 +59,24 @@ Route::middleware('auth:sanctum')->prefix('contratos')->group(function () {
     Route::patch('/{contrato}/finalizar', [ContratoController::class, 'finalizar']);
     Route::patch('/{contrato}/renovar', [ContratoController::class, 'renovar']);
     Route::delete('/{contrato}', [ContratoController::class, 'destroy']);
+});
+
+Route::middleware('auth:sanctum')->get('/roles', [RolController::class, 'index']);
+
+Route::middleware(['auth:sanctum', 'role:Administrador'])->prefix('usuarios')->group(function () {
+    Route::get('/', [UsuarioController::class, 'index']);
+    Route::get('/resumen', [UsuarioController::class, 'resumen']);
+    Route::post('/', [UsuarioController::class, 'store']);
+    Route::get('/{usuario}', [UsuarioController::class, 'show']);
+    Route::put('/{usuario}', [UsuarioController::class, 'update']);
+});
+
+Route::middleware('auth:sanctum')->prefix('perfil')->group(function () {
+    Route::put('/', [PerfilController::class, 'update']);
+    Route::patch('/password', [PerfilController::class, 'cambiarPassword']);
+    Route::get('/estadisticas', [PerfilController::class, 'estadisticas']);
+    Route::get('/actividad', [PerfilController::class, 'actividad']);
+    Route::get('/actividad/exportar', [PerfilController::class, 'exportarActividad']);
+    Route::get('/sesiones', [PerfilController::class, 'sesiones']);
+    Route::delete('/sesiones/{tokenId}', [PerfilController::class, 'revocarSesion']);
 });
