@@ -78,7 +78,7 @@ class DashboardService
         ];
     }
 
-    private function resumenVallas(): array
+    public function resumenVallas(): array
     {
         return [
             'total' => Valla::count(),
@@ -89,7 +89,7 @@ class DashboardService
         ];
     }
 
-    private function resumenContratos(?int $usuarioId = null): array
+    public function resumenContratos(?int $usuarioId = null): array
     {
         $base = Contrato::query()
             ->when($usuarioId, fn ($query) => $query->where('usuario_id', $usuarioId));
@@ -103,7 +103,7 @@ class DashboardService
         ];
     }
 
-    private function ingresosMes(?int $usuarioId = null): float
+    public function ingresosMes(?int $usuarioId = null): float
     {
         return (float) Contrato::query()
             ->when($usuarioId, fn ($query) => $query->where('usuario_id', $usuarioId))
@@ -111,7 +111,7 @@ class DashboardService
             ->sum('monto_usd');
     }
 
-    private function ingresoRecurrente(?int $usuarioId = null): float
+    public function ingresoRecurrente(?int $usuarioId = null): float
     {
         return (float) Contrato::query()
             ->when($usuarioId, fn ($query) => $query->where('usuario_id', $usuarioId))
@@ -120,7 +120,7 @@ class DashboardService
             ->sum('monto_mensual');
     }
 
-    private function ingresosUltimosMeses(int $meses = 6, ?int $usuarioId = null): array
+    public function ingresosUltimosMeses(int $meses = 6, ?int $usuarioId = null): array
     {
         $resultado = [];
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReporteController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -96,4 +97,15 @@ Route::middleware('auth:sanctum')->prefix('perfil')->group(function () {
     Route::get('/actividad/exportar', [PerfilController::class, 'exportarActividad']);
     Route::get('/sesiones', [PerfilController::class, 'sesiones']);
     Route::delete('/sesiones/{tokenId}', [PerfilController::class, 'revocarSesion']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Contable,Dueño'])->prefix('reportes')->group(function () {
+    Route::get('/', [ReporteController::class, 'index']);
+    Route::get('/resumen', [ReporteController::class, 'resumen']);
+    Route::get('/tipos', [ReporteController::class, 'tipos']);
+    Route::get('/{reporte}/descargar/{formato}', [ReporteController::class, 'descargar']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Contable'])->prefix('reportes')->group(function () {
+    Route::post('/', [ReporteController::class, 'store']);
 });
