@@ -15,9 +15,9 @@ class ContratoController extends Controller
     {
     }
 
-    public function index(Request $request)
+        public function index(Request $request)
     {
-        $contratos = $this->contratoService->listar($request->query('estado'));
+        $contratos = $this->contratoService->listar($request->query('estado'), $request->user());
 
         return ContratoResource::collection($contratos);
     }
@@ -34,8 +34,10 @@ class ContratoController extends Controller
         return new ContratoResource($contrato->load('valla', 'cliente', 'usuario'));
     }
 
-    public function finalizar(Contrato $contrato)
+        public function finalizar(Request $request, Contrato $contrato)
     {
+        $this->contratoService->verificarPropiedad($contrato, $request->user());
+
         $contrato = $this->contratoService->finalizarAntes($contrato);
 
         return new ContratoResource($contrato);
@@ -43,20 +45,25 @@ class ContratoController extends Controller
 
     public function renovar(RenovarContratoRequest $request, Contrato $contrato)
     {
+        $this->contratoService->verificarPropiedad($contrato, $request->user());
+
         $contrato = $this->contratoService->renovar($contrato, $request->validated());
 
         return new ContratoResource($contrato);
     }
 
-    public function destroy(Contrato $contrato)
+    public function destroy(Request $request, Contrato $contrato)
     {
+        $this->contratoService->verificarPropiedad($contrato, $request->user());
+
         $this->contratoService->eliminar($contrato);
 
         return response()->json(null, 204);
     }
 
-    public function resumen()
+        public function resumen(Request $request)
     {
-        return response()->json($this->contratoService->resumen());
+        return response()->json($this->contratoService->resumen($request->user()));
     }
+
 }

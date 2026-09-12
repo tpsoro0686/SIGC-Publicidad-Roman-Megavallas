@@ -86,7 +86,7 @@ class VallaService
             'usuario_id' => $usuario->id,
             'modulo' => 'Vallas',
             'accion' => $accion,
-            'descripcion' => "Valla {$valla->codigo}",
+                        'descripcion' => "{$valla->codigo} - {$valla->provincia->nombre} - {$valla->referencia} ({$valla->tamano})",
         ]);
     }
 

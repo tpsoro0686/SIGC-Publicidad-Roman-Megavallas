@@ -12,10 +12,11 @@ class ContratoService
 {
 
 
-    public function listar(?string $estado)
+        public function listar(?string $estado, Usuario $usuarioActual)
     {
         return Contrato::with('valla', 'cliente', 'usuario')
             ->when($estado, fn ($query) => $query->where('estado', $estado))
+            ->when($usuarioActual->rol->nombre === 'Ejecutivo', fn ($query) => $query->where('usuario_id', $usuarioActual->id))
             ->latest('fecha_inicio')
             ->get();
     }
@@ -103,6 +104,18 @@ class ContratoService
         return $contrato->load('valla', 'cliente', 'usuario');
     }
 
+        public function verificarPropiedad(Contrato $contrato, Usuario $usuarioActual): void
+    {
+        if ($usuarioActual->rol->nombre === 'Ejecutivo' && $contrato->usuario_id !== $usuarioActual->id) {
+
+            throw ValidationException::withMessages([
+                'contrato' => ['No tenés permiso sobre este contrato.'],
+            ]);
+
+        }
+
+    }
+
     public function eliminar(Contrato $contrato): void
     {
         if (!$contrato->puedeEliminarse()) {
@@ -138,15 +151,18 @@ class ContratoService
         return $contratos->count();
     }
 
-    public function resumen(): array
+        public function resumen(Usuario $usuarioActual): array
     {
+        $base = Contrato::query()
+            ->when($usuarioActual->rol->nombre === 'Ejecutivo', fn ($query) => $query->where('usuario_id', $usuarioActual->id));
+
         return [
-            'activos' => Contrato::where('estado', 'Activo')->count(),
-            'finalizados' => Contrato::where('estado', 'Finalizado')->count(),
-            'por_vencer' => Contrato::where('estado', 'Activo')
+            'activos' => (clone $base)->where('estado', 'Activo')->count(),
+            'finalizados' => (clone $base)->where('estado', 'Finalizado')->count(),
+            'por_vencer' => (clone $base)->where('estado', 'Activo')
                 ->whereBetween('fecha_fin', [now()->toDateString(), now()->addDays(30)->toDateString()])
                 ->count(),
-            'monto_activo' => (float) Contrato::where('estado', 'Activo')->sum('monto_usd'),
+            'monto_activo' => (float) (clone $base)->where('estado', 'Activo')->sum('monto_usd'),
         ];
     }
 

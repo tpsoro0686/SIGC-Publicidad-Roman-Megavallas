@@ -198,3 +198,21 @@ select{
     color:var(--gray-500);
 
 }
+
+/* Oculta controles de crear/editar/eliminar para roles de solo lectura */
+.sigc-solo-lectura #btnNuevaValla,
+.sigc-solo-lectura #btnNuevaReserva,
+.sigc-solo-lectura #btnNuevoCliente,
+.sigc-solo-lectura #btnNuevoContrato,
+.sigc-solo-lectura #btnFinalizarContrato,
+.sigc-solo-lectura #btnRenovarContrato,
+.sigc-solo-lectura #btnEliminarContrato,
+.sigc-solo-lectura [data-editar],
+.sigc-solo-lectura [data-archivar],
+.sigc-solo-lectura [data-toggle-estado],
+.sigc-solo-lectura [data-reservar],
+.sigc-solo-lectura [data-contrato],
+.sigc-solo-lectura [data-cancelar],
+.sigc-solo-lectura [data-convertir] {
+    display: none !important;
+}

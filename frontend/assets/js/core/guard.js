@@ -6,7 +6,7 @@
  * ==========================================
  */
 
-import { isAuthenticated, clearSession, getUser } from "./auth.js";
+import { isAuthenticated, clearSession, getUser, puedeEscribir } from "./auth.js";
 
 const LOGIN_PATH = "../login/login.html";
 
@@ -103,6 +103,12 @@ export function requireAuth() {
         poblarHeaderUsuario();
 
         conectarLogout();
+
+        if (!puedeEscribir()) {
+
+            document.body.classList.add("sigc-solo-lectura");
+
+        }
 
         import("../components/perfil/perfil.js").then(({ inicializarPerfil }) => {
 

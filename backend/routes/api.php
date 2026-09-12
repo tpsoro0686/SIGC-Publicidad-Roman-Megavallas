@@ -9,6 +9,7 @@ use App\Http\Controllers\ContratoController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\PerfilController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -24,38 +25,54 @@ Route::prefix('auth')->group(function () {
 // (vallas, reservas, contratos, clientes, etc.), todas protegidas
 // con el middleware auth:sanctum salvo que se indique lo contrario.
 
+Route::middleware('auth:sanctum')->get('/dashboard', [DashboardController::class, 'index']);
+
 Route::middleware('auth:sanctum')->get('/provincias', [ProvinciaController::class, 'index']);
 
-Route::middleware('auth:sanctum')->prefix('vallas')->group(function () {
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Dueño'])->prefix('vallas')->group(function () {
     Route::get('/', [VallaController::class, 'index']);
     Route::get('/resumen', [VallaController::class, 'resumen']);
-    Route::post('/', [VallaController::class, 'store']);
     Route::get('/{valla}', [VallaController::class, 'show']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Ejecutivo'])->prefix('vallas')->group(function () {
+    Route::post('/', [VallaController::class, 'store']);
     Route::put('/{valla}', [VallaController::class, 'update']);
     Route::patch('/{valla}/estado', [VallaController::class, 'cambiarEstado']);
 });
 
-Route::middleware('auth:sanctum')->prefix('reservas')->group(function () {
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Dueño'])->prefix('reservas')->group(function () {
     Route::get('/', [ReservaController::class, 'index']);
     Route::get('/resumen', [ReservaController::class, 'resumen']);
-    Route::post('/', [ReservaController::class, 'store']);
     Route::get('/{reserva}', [ReservaController::class, 'show']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Ejecutivo'])->prefix('reservas')->group(function () {
+    Route::post('/', [ReservaController::class, 'store']);
     Route::patch('/{reserva}/cancelar', [ReservaController::class, 'cancelar']);
     Route::patch('/{reserva}/convertir', [ReservaController::class, 'convertir']);
 });
 
-Route::middleware('auth:sanctum')->prefix('clientes')->group(function () {
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Dueño,Contable'])->prefix('clientes')->group(function () {
     Route::get('/', [ClienteController::class, 'index']);
     Route::get('/resumen', [ClienteController::class, 'resumen']);
-    Route::post('/', [ClienteController::class, 'store']);
     Route::get('/{cliente}', [ClienteController::class, 'show']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Ejecutivo'])->prefix('clientes')->group(function () {
+    Route::post('/', [ClienteController::class, 'store']);
     Route::put('/{cliente}', [ClienteController::class, 'update']);
 });
-Route::middleware('auth:sanctum')->prefix('contratos')->group(function () {
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Dueño,Contable'])->prefix('contratos')->group(function () {
     Route::get('/', [ContratoController::class, 'index']);
     Route::get('/resumen', [ContratoController::class, 'resumen']);
-    Route::post('/', [ContratoController::class, 'store']);
     Route::get('/{contrato}', [ContratoController::class, 'show']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Ejecutivo'])->prefix('contratos')->group(function () {
+    Route::post('/', [ContratoController::class, 'store']);
     Route::patch('/{contrato}/finalizar', [ContratoController::class, 'finalizar']);
     Route::patch('/{contrato}/renovar', [ContratoController::class, 'renovar']);
     Route::delete('/{contrato}', [ContratoController::class, 'destroy']);
@@ -63,7 +80,7 @@ Route::middleware('auth:sanctum')->prefix('contratos')->group(function () {
 
 Route::middleware('auth:sanctum')->get('/roles', [RolController::class, 'index']);
 
-Route::middleware(['auth:sanctum', 'role:Administrador'])->prefix('usuarios')->group(function () {
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema'])->prefix('usuarios')->group(function () {
     Route::get('/', [UsuarioController::class, 'index']);
     Route::get('/resumen', [UsuarioController::class, 'resumen']);
     Route::post('/', [UsuarioController::class, 'store']);

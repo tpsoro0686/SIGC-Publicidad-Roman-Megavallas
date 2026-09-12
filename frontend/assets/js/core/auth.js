@@ -60,3 +60,27 @@ export function clearSession() {
     Storage.remove(APP.SESSION_STORAGE_KEY);
 
 }
+
+/**
+ * ¿El usuario logueado tiene alguno de estos roles?
+ * @param  {...string} rolesPermitidos
+ * @returns {boolean}
+ */
+export function tieneRol(...rolesPermitidos) {
+
+    const usuario = getUser();
+
+    return rolesPermitidos.includes(usuario?.rol?.nombre);
+
+}
+
+/**
+ * ¿El usuario logueado puede crear/editar/eliminar
+ * en los módulos operativos (Vallas, Reservas, Contratos, Clientes)?
+ * @returns {boolean}
+ */
+export function puedeEscribir() {
+
+    return tieneRol("Administrador Sistema", "Ejecutivo");
+
+}

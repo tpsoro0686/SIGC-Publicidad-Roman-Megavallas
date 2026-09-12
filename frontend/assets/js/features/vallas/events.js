@@ -16,9 +16,13 @@ import { renderDetalle } from "./render/detalle.js";
 
 import { showError, showSuccess } from "./render/messages.js";
 
+import { tieneRol, puedeEscribir } from "../../core/auth.js";
+
 import * as reservasApi from "../reservas/api.js";
 
 import * as contratosApi from "../contratos/api.js";
+
+
 
 let vallaEditandoId = null;
 
@@ -1069,6 +1073,23 @@ function registrarSidebar() {
 }
 
 export function registerEvents() {
+
+    if (!tieneRol("Administrador Sistema", "Administrador Empresa", "Ejecutivo", "Dueño")) {
+
+        document.getElementById("sigcContent").innerHTML = `
+
+            <div class="sigc-empty-state">
+                <i data-lucide="lock"></i>
+                <p>No tenés permisos para acceder a este módulo. Contactá a un administrador.</p>
+            </div>
+
+        `;
+
+        lucide.createIcons();
+
+        return;
+
+    }
 
     registrarClicksListado();
 
