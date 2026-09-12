@@ -6,18 +6,24 @@
 
 import { requireAuth } from "../../core/guard.js";
 
+import { registerEvents } from "./events.js";
+
 function initialize() {
 
     if (!requireAuth()) {
+
         return;
+
     }
 
-    // Resto de la inicialización del dashboard.
-    console.log("Dashboard inicializado.");
+    registerEvents();
 
 }
 
 document.addEventListener(
+
     "DOMContentLoaded",
+
     initialize
+
 );

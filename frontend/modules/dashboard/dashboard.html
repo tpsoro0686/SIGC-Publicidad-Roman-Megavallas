@@ -4,14 +4,162 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SIGC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/base/variables.css">
+    <link rel="stylesheet" href="../../assets/css/base/global.css">
     <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
 
-    <h1>Dashboard SIGC</h1>
-    <p>Si ves esto, el guard te dejó pasar porque hay una sesión activa.</p>
+    <!-- Sidebar -->
+    <aside class="sigc-sidebar" id="sigcSidebar">
+        <div class="sigc-sidebar__brand">
+            <span class="sigc-sidebar__logo">S</span>
+            <div>
+                <div class="sigc-sidebar__title">SIGC</div>
+                <div class="sigc-sidebar__subtitle">Sistema Integral de Gestión Comercial</div>
+            </div>
+        </div>
 
+        <nav class="sigc-sidebar__nav">
+            <a href="../dashboard/dashboard.html" class="sigc-nav-link is-active">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </a>
+            <a href="../clientes/clientes.html" class="sigc-nav-link">
+                <i data-lucide="users"></i> Clientes
+            </a>
+            <a href="../vallas/vallas.html" class="sigc-nav-link">
+                <i data-lucide="monitor"></i> Vallas
+            </a>
+            <a href="../reservas/reservas.html" class="sigc-nav-link">
+                <i data-lucide="calendar-clock"></i> Reservas
+            </a>
+            <a href="../contratos/contratos.html" class="sigc-nav-link">
+                <i data-lucide="file-text"></i> Contratos
+            </a>
+            <a href="../reportes/reportes.html" class="sigc-nav-link">
+                <i data-lucide="bar-chart-3"></i> Reportes
+            </a>
+            <a href="../usuarios/usuarios.html" class="sigc-nav-link">
+                <i data-lucide="user-cog"></i> Usuarios
+            </a>
+            <a href="../configuracion/configuracion.html" class="sigc-nav-link">
+                <i data-lucide="settings"></i> Configuración
+            </a>
+        </nav>
+
+        <button type="button" class="sigc-sidebar__logout" id="btnCerrarSesion">
+            <i data-lucide="log-out"></i> Cerrar sesión
+        </button>
+    </aside>
+
+    <div class="sigc-overlay" id="sigcOverlay"></div>
+
+    <!-- Contenido principal -->
+    <div class="sigc-main">
+
+        <header class="sigc-header">
+            <button type="button" class="sigc-header__menu-btn" id="btnMenu" aria-label="Abrir menú">
+                <i data-lucide="menu"></i>
+            </button>
+
+            <h1 class="sigc-header__title d-none d-md-block">Dashboard</h1>
+
+            <div class="sigc-header__actions">
+                <button type="button" class="sigc-icon-btn" aria-label="Notificaciones">
+                    <i data-lucide="bell"></i>
+                </button>
+                <div class="sigc-user">
+                    <span class="sigc-user__avatar" id="sigcUserAvatar">--</span>
+                    <div class="d-none d-lg-block">
+                        <div class="sigc-user__name" id="sigcUserNombre">Cargando...</div>
+                        <div class="sigc-user__role" id="sigcUserRol">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="sigc-content" id="sigcContent">
+
+            <div class="sigc-page-heading">
+                <h2 id="sigcDashboardSaludo">Dashboard</h2>
+            </div>
+
+            <!-- Tarjetas resumen principales -->
+            <div class="sigc-stats" id="sigcStats"></div>
+
+            <!-- Fila única: Mapa+Dona/Ingresos a la izquierda, Vencer+Actividad a la derecha -->
+            <div class="row g-3 mb-3 align-items-start">
+
+                <div class="col-lg-7">
+
+                    <div class="sigc-dashboard-card sigc-card-flex sigc-panel-400 mb-3" id="colMapa">
+                        <h4>Mapa de vallas</h4>
+                        <div id="mapaVallas" class="sigc-mapa-flex"></div>
+                        <div class="sigc-mapa-leyenda" id="mapaLeyenda"></div>
+                    </div>
+
+                    <div class="sigc-dashboard-card sigc-card-flex sigc-panel-300" id="panelDonaIngresos">
+                        <div class="sigc-panel-dividido sigc-panel-dividido--flex">
+
+                            <div class="sigc-panel-dividido__lado" id="colDona">
+                                <h4>Resumen por estado</h4>
+                                <div class="sigc-dona-wrap">
+                                    <div class="sigc-dona-canvas-box">
+                                        <canvas id="graficoDona"></canvas>
+                                    </div>
+                                    <div id="donaLeyenda" class="sigc-dona-leyenda"></div>
+                                </div>
+                            </div>
+
+                                                        <div class="sigc-panel-dividido__separador" id="separadorDona"></div>
+
+                            <div class="sigc-panel-dividido__lado">
+                                <h4>Ingresos del mes</h4>
+                                <div class="sigc-ingresos-valor" id="ingresosValor">&mdash;</div>
+                                <div class="sigc-ingresos-tendencia" id="ingresosTendencia"></div>
+                                <canvas id="graficoIngresos" height="140"></canvas>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-5">
+
+                    <div class="sigc-dashboard-card sigc-card-flex sigc-panel-400 mb-3">
+                        <h4>Próximos a vencer</h4>
+                        <div id="listaVencimientos" class="sigc-card-scroll-fijo"><p class="text-muted small">Cargando...</p></div>
+                    </div>
+
+                    <div class="sigc-dashboard-card sigc-card-flex sigc-panel-300" id="colActividad">
+                        <h4>Actividad reciente</h4>
+                        <div id="listaActividad" class="sigc-card-scroll-fijo"><p class="text-muted small">Cargando...</p></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Ranking de ejecutivos -->
+            <div class="row g-3" id="filaRanking">
+                <div class="col-12">
+                    <div class="sigc-dashboard-card">
+                        <h4>Ranking de ejecutivos (este mes)</h4>
+                        <div id="listaRanking"></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script type="module" src="../../assets/js/features/dashboard/index.js"></script>
-
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
 </html>
