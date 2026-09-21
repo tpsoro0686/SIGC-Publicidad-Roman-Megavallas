@@ -858,3 +858,16 @@ body {
     font-weight: 800;
     color: var(--sigc-red);
 }
+
+.sigc-paginacion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.sigc-paginacion__info {
+    font-size: .82rem;
+    color: var(--sigc-text-muted);
+}

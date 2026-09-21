@@ -11,6 +11,7 @@ import http from "../../services/http.js";
  * @param {Object} filtros { estado, provincia_id }
  * @returns {Promise<Object>}
  */
+
 export function listar(filtros = {}) {
 
     const params = new URLSearchParams();
@@ -24,6 +25,18 @@ export function listar(filtros = {}) {
     if (filtros.provincia_id) {
 
         params.set("provincia_id", filtros.provincia_id);
+
+    }
+
+    if (filtros.busqueda) {
+
+        params.set("busqueda", filtros.busqueda);
+
+    }
+
+    if (filtros.page) {
+
+        params.set("page", filtros.page);
 
     }
 

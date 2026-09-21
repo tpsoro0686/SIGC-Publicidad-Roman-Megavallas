@@ -30,43 +30,34 @@ let vallaReservandoId = null;
 
 let vallaContratandoId = null;
 
-function aplicarFiltroLocal(vallas) {
-
-    const termino = vallasState.filtros.busqueda.trim().toLowerCase();
-
-    if (!termino) {
-
-        return vallas;
-
-    }
-
-    return vallas.filter((valla) => {
-
-        return valla.codigo.toLowerCase().includes(termino)
-
-            || valla.referencia.toLowerCase().includes(termino)
-
-            || (valla.provincia?.nombre ?? "").toLowerCase().includes(termino);
-
-    });
-
-}
-
 function renderizarListado() {
-
-    const vallasFiltradas = aplicarFiltroLocal(vallasState.vallas);
 
     const idSeleccionada = vallasState.vallaSeleccionada?.id ?? null;
 
-    renderTabla(vallasFiltradas, idSeleccionada);
+    renderTabla(vallasState.vallas, idSeleccionada);
 
-    renderTarjetas(vallasFiltradas);
+    renderTarjetas(vallasState.vallas);
 
-    const estaVacio = vallasFiltradas.length === 0;
+    const estaVacio = vallasState.vallas.length === 0;
 
     document.getElementById("sigcEmptyState").classList.toggle("d-none", !estaVacio);
 
     lucide.createIcons();
+
+}
+
+function renderizarPaginacion() {
+
+    const { paginaActual, ultimaPagina, total } = vallasState.paginacion;
+
+    document.getElementById("paginacionInfo").textContent =
+        total > 0 ? `Página ${paginaActual} de ${ultimaPagina} · ${total} vallas` : "";
+
+    document.getElementById("btnPaginaAnterior").disabled = paginaActual <= 1;
+
+    document.getElementById("btnPaginaSiguiente").disabled = paginaActual >= ultimaPagina;
+
+    document.getElementById("sigcPaginacion").classList.toggle("d-none", ultimaPagina <= 1);
 
 }
 
@@ -100,13 +91,32 @@ async function cargarVallas() {
 
             estado: vallasState.filtros.estado,
 
-            provincia_id: vallasState.filtros.provincia_id
+            provincia_id: vallasState.filtros.provincia_id,
+
+            busqueda: vallasState.filtros.busqueda,
+
+            page: vallasState.paginacion.paginaActual
 
         });
 
         vallasState.vallas = respuesta.data ?? respuesta;
 
+        vallasState.paginacion.ultimaPagina = respuesta.meta?.last_page ?? 1;
+
+        vallasState.paginacion.total = respuesta.meta?.total ?? vallasState.vallas.length;
+
+        // Si archivaste/moviste la última valla de una página que ya no existe, retrocedemos una página.
+        if (vallasState.vallas.length === 0 && vallasState.paginacion.paginaActual > 1) {
+
+            vallasState.paginacion.paginaActual -= 1;
+
+            return cargarVallas();
+
+        }
+
         renderizarListado();
+
+        renderizarPaginacion();
 
     }
 
@@ -1002,15 +1012,19 @@ function registrarFiltros() {
 
         vallasState.filtros.busqueda = evento.target.value;
 
+        vallasState.paginacion.paginaActual = 1;
+
         clearTimeout(temporizador);
 
-        temporizador = setTimeout(renderizarListado, 250);
+        temporizador = setTimeout(cargarVallas, 350);
 
     });
 
     document.getElementById("filtroProvincia").addEventListener("change", (evento) => {
 
         vallasState.filtros.provincia_id = evento.target.value;
+
+        vallasState.paginacion.paginaActual = 1;
 
         cargarVallas();
 
@@ -1020,6 +1034,8 @@ function registrarFiltros() {
 
         vallasState.filtros.estado = evento.target.value;
 
+        vallasState.paginacion.paginaActual = 1;
+
         cargarVallas();
 
     });
@@ -1028,11 +1044,45 @@ function registrarFiltros() {
 
         vallasState.filtros = { busqueda: "", provincia_id: "", estado: "" };
 
+        vallasState.paginacion.paginaActual = 1;
+
         document.getElementById("filtroBusqueda").value = "";
 
         document.getElementById("filtroProvincia").value = "";
 
         document.getElementById("filtroEstado").value = "";
+
+        cargarVallas();
+
+    });
+
+}
+
+function registrarPaginacion() {
+
+    document.getElementById("btnPaginaAnterior").addEventListener("click", () => {
+
+        if (vallasState.paginacion.paginaActual <= 1) {
+
+            return;
+
+        }
+
+        vallasState.paginacion.paginaActual -= 1;
+
+        cargarVallas();
+
+    });
+
+    document.getElementById("btnPaginaSiguiente").addEventListener("click", () => {
+
+        if (vallasState.paginacion.paginaActual >= vallasState.paginacion.ultimaPagina) {
+
+            return;
+
+        }
+
+        vallasState.paginacion.paginaActual += 1;
 
         cargarVallas();
 
@@ -1094,6 +1144,8 @@ export function registerEvents() {
     registrarClicksListado();
 
     registrarFiltros();
+
+    registrarPaginacion();
 
     registrarCierreDetalle();
 

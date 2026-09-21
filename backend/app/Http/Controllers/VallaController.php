@@ -21,6 +21,8 @@ class VallaController extends Controller
         $vallas = $this->vallaService->listar(
             $request->query('estado'),
             $request->query('provincia_id'),
+            $request->query('busqueda'),
+            (int) $request->query('per_page', 20),
         );
 
         return VallaResource::collection($vallas);
@@ -73,5 +75,5 @@ class VallaController extends Controller
     {
         return response()->json($this->vallaService->resumen());
     }
-    
+
 }

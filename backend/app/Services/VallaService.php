@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Bitacora;
+use App\Models\Configuracion;
 use App\Models\Provincia;
 use App\Models\Usuario;
 use App\Models\Valla;
@@ -22,12 +23,24 @@ class VallaService
         'Limon' => 'L',
     ];
 
-    public function listar(?string $estado = null, ?int $provinciaId = null)
+    public function listar(?string $estado = null, ?int $provinciaId = null, ?string $busqueda = null, int $perPage = 20)
     {
         return Valla::with('provincia', 'fotos')
             ->when($estado, fn ($query) => $query->where('estado', $estado))
             ->when($provinciaId, fn ($query) => $query->where('provincia_id', $provinciaId))
-            ->get();
+            ->when($busqueda, function ($query) use ($busqueda) {
+
+                $query->where(function ($sub) use ($busqueda) {
+
+                    $sub->where('codigo', 'like', "%{$busqueda}%")
+                        ->orWhere('referencia', 'like', "%{$busqueda}%")
+                        ->orWhereHas('provincia', fn ($p) => $p->where('nombre', 'like', "%{$busqueda}%"));
+
+                });
+
+            })
+            ->orderBy('codigo')
+            ->paginate($perPage);
     }
 
     public function crear(array $datos, Usuario $usuario): Valla
@@ -100,7 +113,7 @@ class VallaService
                 ->where('fecha_fin', '>=', now())
                 ->count(),
             'contratos_por_vencer' => Contrato::where('estado', 'Activo')
-                ->whereBetween('fecha_fin', [now(), now()->addDays(30)])
+                ->whereBetween('fecha_fin', [now(), now()->addDays(Configuracion::actual()->dias_aviso_vencimiento)])
                 ->count(),
             'contratos_vencidos' => Contrato::where('estado', 'Activo')
                 ->where('fecha_fin', '<', now())

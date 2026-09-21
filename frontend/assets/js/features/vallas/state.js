@@ -24,6 +24,16 @@ const vallasState = {
 
     },
 
+    paginacion: {
+
+        paginaActual: 1,
+
+        ultimaPagina: 1,
+
+        total: 0
+
+    },
+
     cargando: false
 
 };
