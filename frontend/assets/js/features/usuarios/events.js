@@ -440,7 +440,7 @@ export function registerEvents() {
 
     const usuarioActual = getUser();
 
-    if (usuarioActual?.rol?.nombre !== "Administrador") {
+    if (usuarioActual?.rol?.nombre !== "Administrador Sistema") {
 
         document.getElementById("sigcContent").innerHTML = `
 
