@@ -11,3 +11,8 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('reservas:vencer')->everyFiveMinutes();
 Schedule::command('contratos:vencer')->everyFiveMinutes();
+Schedule::command('configuracion:actualizar-tipo-cambio')->dailyAt('06:00');
+
+Schedule::call(function () {
+    \App\Models\Configuracion::actual()->update(['scheduler_ultima_corrida' => now()]);
+})->everyFiveMinutes();

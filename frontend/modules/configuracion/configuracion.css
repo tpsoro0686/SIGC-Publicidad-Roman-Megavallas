@@ -1,0 +1,114 @@
+:root {
+    --sigc-red: #E31E24;
+    --sigc-red-dark: #B5171C;
+    --sigc-black: #17181C;
+    --sigc-bg: #F4F5F7;
+    --sigc-border: #E4E6EB;
+    --sigc-text: #23252B;
+    --sigc-text-muted: #7A7E8C;
+    --sigc-green: #1FA971;
+    --sigc-amber: #C77700;
+    --sigc-amber-bg: #FFF3DF;
+    --sigc-radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--sigc-bg);
+    color: var(--sigc-text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* ===== Sidebar / Header (igual al resto de módulos) ===== */
+.sigc-sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: 250px;
+    background: var(--sigc-black); color: #fff;
+    display: flex; flex-direction: column; padding: 20px 16px;
+    z-index: 1050; transition: transform .25s ease;
+}
+.sigc-sidebar__brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 24px; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 16px; }
+.sigc-sidebar__logo { width: 36px; height: 36px; background: var(--sigc-red); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+.sigc-sidebar__title { font-weight: 700; font-size: .95rem; }
+.sigc-sidebar__subtitle { font-size: .68rem; color: rgba(255,255,255,.55); line-height: 1.2; }
+.sigc-sidebar__nav { display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; }
+.sigc-nav-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; color: rgba(255,255,255,.75); text-decoration: none; font-size: .88rem; transition: background .15s ease, color .15s ease; }
+.sigc-nav-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+.sigc-nav-link.is-active { background: var(--sigc-red); color: #fff; }
+.sigc-sidebar__logout { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: transparent; border: none; color: rgba(255,255,255,.6); font-size: .85rem; border-top: 1px solid rgba(255,255,255,.08); margin-top: 12px; padding-top: 16px; cursor: pointer; text-align: left; }
+.sigc-sidebar__logout:hover { color: #fff; }
+.sigc-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1040; }
+
+.sigc-main { margin-left: 250px; min-height: 100vh; display: flex; flex-direction: column; }
+.sigc-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 24px; background: #fff; border-bottom: 1px solid var(--sigc-border); position: sticky; top: 0; z-index: 900; }
+.sigc-header__menu-btn { display: none; border: none; background: transparent; font-size: 1.3rem; color: var(--sigc-text); }
+.sigc-header__title { margin: 0; font-size: 1.1rem; font-weight: 700; }
+.sigc-header__actions { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+.sigc-icon-btn { border: none; background: var(--sigc-bg); width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--sigc-text); }
+.sigc-user { display: flex; align-items: center; gap: 10px; }
+.sigc-user__avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--sigc-red); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .8rem; }
+.sigc-user__name { font-size: .85rem; font-weight: 600; }
+.sigc-user__role { font-size: .72rem; color: var(--sigc-text-muted); }
+
+.sigc-content { padding: 20px 24px 40px; }
+.sigc-page-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+.sigc-page-heading h2 { margin: 0; font-size: 1.3rem; font-weight: 700; }
+
+.sigc-btn-primary { background: var(--sigc-red); border-color: var(--sigc-red); color: #fff; font-weight: 600; font-size: .88rem; padding: 9px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; }
+.sigc-btn-primary:hover { background: var(--sigc-red-dark); color: #fff; }
+.sigc-btn-outline { border: 1px solid var(--sigc-border); background: #fff; color: var(--sigc-text); font-size: .85rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; }
+
+.sigc-empty-state { text-align: center; padding: 60px 20px; color: var(--sigc-text-muted); background: #fff; border: 1px dashed var(--sigc-border); border-radius: var(--sigc-radius); }
+.sigc-empty-state i { font-size: 2rem; display: block; margin-bottom: 10px; }
+
+@media (max-width: 991.98px) {
+    .sigc-sidebar { transform: translateX(-100%); }
+    .sigc-sidebar.is-open { transform: translateX(0); }
+    .sigc-overlay.is-open { display: block; }
+    .sigc-main { margin-left: 0; }
+    .sigc-header__menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+}
+
+/* ===== Específico de Configuración ===== */
+.sigc-config-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+}
+
+@media (min-width: 992px) {
+    .sigc-config-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.sigc-config-section {
+    background: #fff;
+    border: 1px solid var(--sigc-border);
+    border-radius: var(--sigc-radius);
+    padding: 20px;
+}
+
+.sigc-config-section h3 { font-size: .95rem; font-weight: 700; margin-bottom: 4px; }
+.sigc-config-section__desc { font-size: .78rem; color: var(--sigc-text-muted); margin-bottom: 16px; }
+
+.sigc-config-logo { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+.sigc-config-logo__preview {
+    width: 72px; height: 72px; border-radius: 10px;
+    border: 1px dashed var(--sigc-border);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; background: var(--sigc-bg); flex-shrink: 0;
+    color: var(--sigc-text-muted);
+}
+.sigc-config-logo__preview img { width: 100%; height: 100%; object-fit: contain; }
+
+.sigc-config-salud { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 16px; }
+.sigc-config-salud__item { background: var(--sigc-bg); border-radius: 10px; padding: 12px; }
+.sigc-config-salud__label { font-size: .7rem; color: var(--sigc-text-muted); margin-bottom: 2px; }
+.sigc-config-salud__value { font-size: .92rem; font-weight: 700; }
+
+.sigc-config-mantenimiento {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--sigc-amber-bg); border-radius: 10px; padding: 14px;
+}
+
+.sigc-config-actions { display: flex; justify-content: flex-end; margin-top: 18px; }

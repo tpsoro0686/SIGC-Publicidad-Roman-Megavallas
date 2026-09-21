@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Configuracion;
 use App\Models\Contrato;
 use App\Models\Reserva;
 use App\Models\Usuario;
@@ -160,7 +161,7 @@ class ContratoService
             'activos' => (clone $base)->where('estado', 'Activo')->count(),
             'finalizados' => (clone $base)->where('estado', 'Finalizado')->count(),
             'por_vencer' => (clone $base)->where('estado', 'Activo')
-                ->whereBetween('fecha_fin', [now()->toDateString(), now()->addDays(30)->toDateString()])
+                ->whereBetween('fecha_fin', [now()->toDateString(), now()->addDays(Configuracion::actual()->dias_aviso_vencimiento)->toDateString()])
                 ->count(),
             'monto_activo' => (float) (clone $base)->where('estado', 'Activo')->sum('monto_usd'),
         ];

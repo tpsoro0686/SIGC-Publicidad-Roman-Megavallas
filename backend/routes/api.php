@@ -11,6 +11,7 @@ use App\Http\Controllers\RolController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\ConfiguracionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -108,4 +109,16 @@ Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Emp
 
 Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Contable'])->prefix('reportes')->group(function () {
     Route::post('/', [ReporteController::class, 'store']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa'])->prefix('configuracion')->group(function () {
+    Route::get('/', [ConfiguracionController::class, 'show']);
+    Route::get('/salud', [ConfiguracionController::class, 'salud']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema'])->prefix('configuracion')->group(function () {
+    Route::put('/', [ConfiguracionController::class, 'update']);
+    Route::post('/logo', [ConfiguracionController::class, 'actualizarLogo']);
+    Route::post('/tipo-cambio/actualizar', [ConfiguracionController::class, 'actualizarTipoCambio']);
+    Route::post('/mantenimiento', [ConfiguracionController::class, 'mantenimiento']);
 });
