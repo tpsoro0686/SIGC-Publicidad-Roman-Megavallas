@@ -14,7 +14,9 @@ const AppConfig = Object.freeze({
 
     api:{
 
-        baseUrl:"http://127.0.0.1:8000/api",
+        //baseUrl:"http://127.0.0.1:8000/api",
+
+        baseUrl:`http://${window.location.hostname}:8000/api`,
 
         timeout:10000
 
