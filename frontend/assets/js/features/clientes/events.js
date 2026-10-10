@@ -64,7 +64,7 @@ function aplicarFiltroLocal(clientes) {
 
         return cliente.nombre.toLowerCase().includes(termino)
 
-            || cliente.cedula.toLowerCase().includes(termino);
+                || (cliente.cedula ?? "").toLowerCase().includes(termino);
 
     });
 
@@ -232,7 +232,7 @@ async function abrirEdicion(id) {
 
         document.getElementById("campoClienteNombreForm").value = cliente.nombre;
 
-        document.getElementById("campoClienteCedulaForm").value = cliente.cedula;
+        document.getElementById("campoClienteCedulaForm").value = cliente.cedula ?? "";
 
         document.getElementById("campoClienteTelefono").value = cliente.telefono ?? "";
 

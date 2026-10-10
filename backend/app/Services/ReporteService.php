@@ -107,7 +107,9 @@ class ReporteService
 
         }
 
-        return Storage::disk('local')->download($ruta);
+        $rutaCompleta = Storage::disk('local')->path($ruta);
+
+        return response()->download($rutaCompleta, basename($ruta));
     }
 
     private function recolectarDatos(string $tipo, ?string $desde, ?string $hasta, ?int $usuarioId): array
@@ -184,7 +186,7 @@ class ReporteService
         $clientes = Cliente::withCount('reservas', 'contratos')->orderBy('nombre')->get();
 
         $filas = $clientes->map(fn ($c) => [
-            $c->nombre, $c->cedula, $c->telefono ?? '-', (string) $c->reservas_count, (string) $c->contratos_count, $c->estado,
+                        $c->nombre, $c->cedula ?? '-', $c->telefono ?? '-', (string) $c->reservas_count,
         ])->all();
 
         return [

@@ -21,6 +21,18 @@ class StoreContratoRequest extends FormRequest
             'monto_usd' => ['required', 'numeric', 'min:0.01'],
             'plazo_meses' => ['required', 'integer', 'min:1', 'max:120'],
             'fecha_inicio' => ['required', 'date'],
+            'cliente' => ['nullable', 'array'],
+            'cliente.cedula' => ['nullable', 'string', 'max:30'],
+            'cliente.telefono' => ['nullable', 'string', 'max:30'],
+            'cliente.correo' => ['nullable', 'email', 'max:150'],
+            'cliente.direccion' => ['nullable', 'string', 'max:255'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'cliente.correo.email' => 'El correo del cliente no es válido.',
         ];
     }
 }

@@ -10,7 +10,7 @@ export function renderTabla(clientes) {
 
             <td><strong>${cliente.nombre}</strong></td>
 
-            <td>${cliente.cedula}</td>
+            <td>${cliente.cedula ?? "-"}</td>
 
             <td>${cliente.telefono ?? "-"}</td>
 

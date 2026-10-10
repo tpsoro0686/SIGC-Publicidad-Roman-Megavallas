@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Cliente;
 use App\Models\Configuracion;
 use App\Models\Contrato;
 use App\Models\Reserva;
 use App\Models\Usuario;
 use App\Models\Valla;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class ContratoService
@@ -24,51 +26,60 @@ class ContratoService
 
     public function crear(array $datos, Usuario $usuario): Contrato
     {
-        $reserva = null;
+        return DB::transaction(function () use ($datos, $usuario) {
 
-        if (!empty($datos['reserva_id'])) {
+            $reserva = null;
 
-            $reserva = Reserva::with('valla')->findOrFail($datos['reserva_id']);
+            $datosCliente = $datos['cliente'] ?? [];
 
-            $vallaId = $reserva->valla_id;
-            $clienteId = $reserva->cliente_id;
+            if (!empty($datos['reserva_id'])) {
 
-        } else {
+                $reserva = Reserva::with('valla', 'cliente')->findOrFail($datos['reserva_id']);
 
-            $vallaId = $datos['valla_id'];
+                $vallaId = $reserva->valla_id;
 
-            $clienteId = $datos['cliente_id'] ?? $this->crearClienteRapido($datos['cliente_nombre']);
+                $cliente = $this->completarCliente($reserva->cliente, $reserva->cliente->nombre, $datosCliente);
 
-        }
+            } else {
 
-        $valla = Valla::findOrFail($vallaId);
+                $vallaId = $datos['valla_id'];
 
-        $fechaInicio = $datos['fecha_inicio'];
+                $clienteExistente = !empty($datos['cliente_id']) ? Cliente::findOrFail($datos['cliente_id']) : null;
 
-        $fechaFin = now()->parse($fechaInicio)->addMonths($datos['plazo_meses'])->toDateString();
+                $cliente = $this->completarCliente($clienteExistente, $clienteExistente?->nombre ?? $datos['cliente_nombre'], $datosCliente);
 
-        $contrato = Contrato::create([
-            'reserva_id' => $reserva?->id,
-            'valla_id' => $valla->id,
-            'cliente_id' => $clienteId,
-            'usuario_id' => $usuario->id,
-            'codigo' => $this->generarCodigo($valla, $fechaInicio),
-            'monto_usd' => $datos['monto_usd'],
-            'plazo_meses' => $datos['plazo_meses'],
-            'fecha_inicio' => $fechaInicio,
-            'fecha_fin' => $fechaFin,
-            'estado' => 'Activo',
-        ]);
+            }
 
-        $valla->update(['estado' => 'Alquilada']);
+            $valla = Valla::findOrFail($vallaId);
 
-        if ($reserva && $reserva->estado === 'Activa') {
+            $fechaInicio = $datos['fecha_inicio'];
 
-            $reserva->update(['estado' => 'Convertida']);
+            $fechaFin = now()->parse($fechaInicio)->addMonths($datos['plazo_meses'])->toDateString();
 
-        }
+            $contrato = Contrato::create([
+                'reserva_id' => $reserva?->id,
+                'valla_id' => $valla->id,
+                'cliente_id' => $cliente->id,
+                'usuario_id' => $usuario->id,
+                'codigo' => $this->generarCodigo($valla, $fechaInicio),
+                'monto_usd' => $datos['monto_usd'],
+                'plazo_meses' => $datos['plazo_meses'],
+                'fecha_inicio' => $fechaInicio,
+                'fecha_fin' => $fechaFin,
+                'estado' => 'Activo',
+            ]);
 
-        return $contrato->load('valla', 'cliente', 'usuario');
+            $valla->update(['estado' => 'Alquilada']);
+
+            if ($reserva && $reserva->estado === 'Activa') {
+
+                $reserva->update(['estado' => 'Convertida']);
+
+            }
+
+            return $contrato->load('valla', 'cliente', 'usuario');
+
+        });
     }
 
     public function finalizarAntes(Contrato $contrato): Contrato
@@ -167,13 +178,71 @@ class ContratoService
         ];
     }
 
-    private function crearClienteRapido(string $nombre): int
+    /**
+     * Todo contrato debe llevar los datos completos del cliente.
+     * Toma lo enviado en el formulario y, si falta algo, lo que el cliente ya tenga guardado.
+     * Si el cliente aún no existe, lo crea (o reutiliza el que ya tenga esa cédula).
+     */
+    private function completarCliente(?Cliente $cliente, string $nombre, array $enviados): Cliente
     {
-        return \App\Models\Cliente::create([
+        $etiquetas = [
+            'cedula' => 'Falta la cédula del cliente.',
+            'telefono' => 'Falta el teléfono del cliente.',
+            'correo' => 'Falta el correo del cliente.',
+            'direccion' => 'Falta la dirección del cliente.',
+        ];
+
+        $final = [];
+
+        $errores = [];
+
+        foreach ($etiquetas as $campo => $mensaje) {
+
+            $valor = trim((string) ($enviados[$campo] ?? ''));
+
+            $final[$campo] = $valor !== '' ? $valor : trim((string) ($cliente?->{$campo} ?? ''));
+
+            if ($final[$campo] === '') {
+
+                $errores["cliente.{$campo}"] = [$mensaje];
+
+            }
+
+        }
+
+        if (!empty($errores)) {
+
+            throw ValidationException::withMessages($errores);
+
+        }
+
+        $conMismaCedula = Cliente::where('cedula', $final['cedula'])
+            ->when($cliente, fn ($query) => $query->where('id', '!=', $cliente->id))
+            ->first();
+
+        if ($conMismaCedula && $cliente) {
+
+            throw ValidationException::withMessages([
+                'cliente.cedula' => ["Ya existe otro cliente registrado con esa cédula ({$conMismaCedula->nombre})."],
+            ]);
+
+        }
+
+        // Cliente nuevo cuya cédula ya existe: se reutiliza el registro, sin duplicarlo
+        $cliente = $cliente ?? $conMismaCedula;
+
+        if ($cliente) {
+
+            $cliente->update($final);
+
+            return $cliente;
+
+        }
+
+        return Cliente::create(array_merge($final, [
             'nombre' => $nombre,
-            'cedula' => 'TEMP-' . uniqid(),
             'estado' => 'Activo',
-        ])->id;
+        ]));
     }
 
        private function generarCodigo(Valla $valla, string $fechaInicio): string

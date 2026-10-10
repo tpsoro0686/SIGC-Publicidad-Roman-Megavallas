@@ -469,7 +469,9 @@ async function manejarSubmitNuevoContrato(evento) {
 
         plazo_meses: Number(document.getElementById("campoContratoPlazo").value),
 
-        monto_usd: Number(document.getElementById("campoContratoMonto").value)
+        monto_usd: Number(document.getElementById("campoContratoMonto").value),
+
+        cliente: leerDatosCliente("contrato")
 
     };
 
@@ -493,7 +495,7 @@ async function manejarSubmitNuevoContrato(evento) {
 
         console.error(error);
 
-        errorBox.textContent = error?.data?.message || "No se pudo crear el contrato.";
+        errorBox.textContent = mensajeDeError(error, "No se pudo crear el contrato.");
 
         errorBox.classList.remove("d-none");
 
@@ -506,6 +508,8 @@ function registrarFormularioNuevoContrato() {
     document.getElementById("btnNuevoContrato").addEventListener("click", () => {
 
         cargarVallasDisponibles();
+
+        montarDatosCliente("contratoClienteDatos", "contrato");
 
         const modal = new bootstrap.Modal(document.getElementById("modalNuevoContrato"));
 

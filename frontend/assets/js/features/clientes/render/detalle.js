@@ -95,7 +95,7 @@ export function renderDetalle(cliente) {
         <div class="sigc-detalle-top">
             <div>
                 <div class="sigc-detalle-codigo">${cliente.nombre}</div>
-                <div class="sigc-detalle-provincia">${cliente.cedula}</div>
+                <div class="sigc-detalle-provincia">${cliente.cedula ?? "-"}</div>
             </div>
             ${badge(cliente.estado, { Activo: "sigc-badge--disponible", Inactivo: "sigc-badge--inactiva" })}
         </div>

@@ -848,6 +848,8 @@ function abrirMiniContrato(id) {
 
     document.getElementById("formContratoValla").reset();
 
+    montarDatosCliente("contratoValaClienteDatos", "contratoVala");
+
     document.getElementById("formContratoValaError").classList.add("d-none");
 
     const modal = new bootstrap.Modal(document.getElementById("modalContratoValla"));
@@ -874,7 +876,9 @@ async function manejarSubmitContratoValla(evento) {
 
         plazo_meses: Number(document.getElementById("campoContratoValaPlazo").value),
 
-        monto_usd: Number(document.getElementById("campoContratoValaMonto").value)
+        monto_usd: Number(document.getElementById("campoContratoValaMonto").value),
+
+        cliente: leerDatosCliente("contratoVala")
 
     };
 
@@ -896,9 +900,7 @@ async function manejarSubmitContratoValla(evento) {
 
         console.error(error);
 
-        const mensaje = error?.data?.message || error?.message || "No se pudo crear el contrato.";
-
-        errorBox.textContent = mensaje;
+        errorBox.textContent = mensajeDeError(error, "No se pudo crear el contrato.");
 
         errorBox.classList.remove("d-none");
 

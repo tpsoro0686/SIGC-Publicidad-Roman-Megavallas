@@ -13,7 +13,7 @@ export function renderTarjetas(clientes) {
                 ${badgeEstado(cliente.estado)}
             </div>
 
-            <div class="sigc-valla-card__referencia">${cliente.cedula}</div>
+            <div class="sigc-valla-card__referencia">${cliente.cedula ?? "-"}</div>
 
             <div class="sigc-valla-card__meta">
                 <span>${cliente.telefono ?? "-"}</span>

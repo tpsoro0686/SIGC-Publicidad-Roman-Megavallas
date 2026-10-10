@@ -16,6 +16,8 @@ import { showError } from "./render/messages.js";
 
 import { tieneRol, puedeEscribir } from "../../core/auth.js";
 
+import { montarDatosCliente, leerDatosCliente, mensajeDeError } from "../../components/cliente-datos/cliente-datos.js";
+
 import * as contratosApi from "../contratos/api.js";
 
 
@@ -275,6 +277,8 @@ function abrirConvertir(id) {
 
     document.getElementById("formConvertirReserva").reset();
 
+    montarDatosCliente("convertirClienteDatos", "convertir", reserva?.cliente);
+
     document.getElementById("formConvertirReservaError").classList.add("d-none");
 
     const modal = new bootstrap.Modal(document.getElementById("modalConvertirReserva"));
@@ -299,7 +303,9 @@ async function manejarSubmitConvertir(evento) {
 
         plazo_meses: Number(document.getElementById("campoConvertirPlazo").value),
 
-        monto_usd: Number(document.getElementById("campoConvertirMonto").value)
+        monto_usd: Number(document.getElementById("campoConvertirMonto").value),
+
+        cliente: leerDatosCliente("convertir")
 
     };
 
@@ -321,7 +327,7 @@ async function manejarSubmitConvertir(evento) {
 
         console.error(error);
 
-        errorBox.textContent = error?.data?.message || "No se pudo crear el contrato.";
+        errorBox.textContent = mensajeDeError(error, "No se pudo crear el contrato.");
 
         errorBox.classList.remove("d-none");
 

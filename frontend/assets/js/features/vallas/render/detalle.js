@@ -165,7 +165,7 @@ export function renderDetalle(valla) {
 
                 <div class="sigc-flyer__box">
                     <div class="sigc-flyer__box-label">Geolocalización</div>
-                    <div class="sigc-flyer__box-value">Lat. ${formatCoordenada(valla.latitud)} &middot; Lon. ${formatCoordenada(valla.longitud)}
+                    <div class="sigc-flyer__box-value">Lat. ${formatCoordenada(valla.latitud)} &middot; Lon. ${formatCoordenada(valla.longitud)}</div>
                 </div>
 
                 <div class="sigc-flyer__box">

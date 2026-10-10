@@ -25,6 +25,10 @@ class ReservaResource extends JsonResource
                 'id' => $this->cliente->id,
                 'nombre' => $this->cliente->nombre,
                 'telefono' => $this->cliente->telefono,
+                'cedula' => $this->cliente->cedula,
+                'correo' => $this->cliente->correo,
+                'direccion' => $this->cliente->direccion,
+                'datos_completos' => $this->cliente->datosCompletos(),
             ],
             'usuario' => [
                 'id' => $this->usuario->id,

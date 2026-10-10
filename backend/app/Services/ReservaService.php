@@ -59,7 +59,7 @@ class ReservaService
     {
         $cliente = Cliente::create([
             'nombre' => $datos['cliente_nombre'],
-            'cedula' => 'TEMP-' . uniqid(),
+            'cedula' => null,
             'estado' => 'Activo',
         ]);
 

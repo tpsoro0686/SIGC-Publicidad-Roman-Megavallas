@@ -16,6 +16,7 @@ class ClienteResource extends JsonResource
             'correo' => $this->correo,
             'direccion' => $this->direccion,
             'estado' => $this->estado,
+            'datos_completos' => $this->datosCompletos(),
             'reservas_count' => $this->whenCounted('reservas'),
             'contratos_count' => $this->whenCounted('contratos'),
             'reservas' => ReservaResource::collection($this->whenLoaded('reservas')),
