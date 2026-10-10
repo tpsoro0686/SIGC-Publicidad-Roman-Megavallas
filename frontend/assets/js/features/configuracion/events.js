@@ -12,6 +12,8 @@ import { showError, showSuccess } from "./render/messages.js";
 
 import { tieneRol } from "../../core/auth.js";
 
+import { confirmarAccion } from "../../components/confirm/confirm.js";
+
 import AppConfig from "../../core/config.js";
 
 function formatearFechaHora(fecha) {
@@ -317,15 +319,13 @@ async function manejarToggleMantenimiento(evento) {
 
     const activar = evento.target.checked;
 
-    const confirmar = window.confirm(
-
-        activar
-
+    const confirmar = await confirmarAccion({
+        titulo: activar ? "Activar modo mantenimiento" : "Desactivar modo mantenimiento",
+        mensaje: activar
             ? "¿Activar el modo mantenimiento? El sistema dejará de estar disponible para el resto de usuarios."
-
-            : "¿Desactivar el modo mantenimiento y volver a dejar el sistema disponible?"
-
-    );
+            : "¿Desactivar el modo mantenimiento y volver a dejar el sistema disponible?",
+        textoConfirmar: activar ? "Activar" : "Desactivar"
+    });
 
     if (!confirmar) {
 

@@ -18,6 +18,8 @@ import { showError } from "./render/messages.js";
 
 import { tieneRol, puedeEscribir } from "../../core/auth.js";
 
+import { confirmarAccion } from "../../components/confirm/confirm.js";
+
 let clienteEditandoId = null;
 
 function mostrarMensajeExito(texto) {
@@ -186,7 +188,11 @@ async function manejarToggleEstado(id, estadoActual) {
 
     const nuevoEstado = estadoActual === "Activo" ? "Inactivo" : "Activo";
 
-    const confirmar = window.confirm(`¿${nuevoEstado === "Inactivo" ? "Inactivar" : "Reactivar"} este cliente?`);
+    const confirmar = await confirmarAccion({
+        titulo: nuevoEstado === "Inactivo" ? "Inactivar cliente" : "Reactivar cliente",
+        mensaje: `¿${nuevoEstado === "Inactivo" ? "Inactivar" : "Reactivar"} este cliente?`,
+        textoConfirmar: nuevoEstado === "Inactivo" ? "Inactivar" : "Reactivar"
+    });
 
     if (!confirmar) {
 

@@ -18,6 +18,8 @@ import { showError } from "./render/messages.js";
 
 import { tieneRol, puedeEscribir } from "../../core/auth.js";
 
+import { confirmarAccion } from "../../components/confirm/confirm.js";
+
 let contratoRenovandoId = null;
 
 function mostrarMensajeExito(texto) {
@@ -184,7 +186,11 @@ function cerrarDetalle() {
 
 async function manejarFinalizar(id) {
 
-    const confirmar = window.confirm("¿Finalizar este contrato antes de tiempo? La valla quedará Disponible.");
+    const confirmar = await confirmarAccion({
+        titulo: "Finalizar contrato",
+        mensaje: "¿Finalizar este contrato antes de tiempo? La valla quedará Disponible.",
+        textoConfirmar: "Finalizar"
+    });
 
     if (!confirmar) {
 
@@ -276,7 +282,11 @@ async function manejarSubmitRenovar(evento) {
 
 async function manejarEliminar(id) {
 
-    const confirmar = window.confirm("¿Eliminar este contrato? Esta acción no se puede deshacer.");
+    const confirmar = await confirmarAccion({
+        titulo: "Eliminar contrato",
+        mensaje: "¿Eliminar este contrato? Esta acción no se puede deshacer.",
+        textoConfirmar: "Eliminar"
+    });
 
     if (!confirmar) {
 

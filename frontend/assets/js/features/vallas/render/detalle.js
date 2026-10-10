@@ -31,7 +31,7 @@ function formatearFecha(fecha) {
 
 }
 
-function formatDMS(decimal, tipo) {
+function formatCoordenada(decimal) {
 
     if (decimal === null || decimal === undefined) {
 
@@ -39,27 +39,7 @@ function formatDMS(decimal, tipo) {
 
     }
 
-    const numero = Number(decimal);
-
-    const hemisferio = tipo === "lat"
-        ? (numero >= 0 ? "N" : "S")
-        : (numero >= 0 ? "E" : "W");
-
-    const absoluto = Math.abs(numero);
-
-    const grados = Math.floor(absoluto);
-
-    const minutosDecimal = (absoluto - grados) * 60;
-
-    const minutos = Math.floor(minutosDecimal);
-
-    const segundos = (minutosDecimal - minutos) * 60;
-
-    const minutosStr = String(minutos).padStart(2, "0");
-
-    const segundosStr = segundos.toFixed(1).padStart(4, "0");
-
-    return `${grados}°${minutosStr}'${segundosStr}"${hemisferio}`;
+    return Number(decimal).toFixed(6);
 
 }
 
@@ -185,7 +165,7 @@ export function renderDetalle(valla) {
 
                 <div class="sigc-flyer__box">
                     <div class="sigc-flyer__box-label">Geolocalización</div>
-                    <div class="sigc-flyer__box-value">Lat. ${formatDMS(valla.latitud, "lat")} &middot; Lon. ${formatDMS(valla.longitud, "lon")}</div>
+                    <div class="sigc-flyer__box-value">Lat. ${formatCoordenada(valla.latitud)} &middot; Lon. ${formatCoordenada(valla.longitud)}
                 </div>
 
                 <div class="sigc-flyer__box">

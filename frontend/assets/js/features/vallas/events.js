@@ -18,6 +18,8 @@ import { showError, showSuccess } from "./render/messages.js";
 
 import { tieneRol, puedeEscribir } from "../../core/auth.js";
 
+import { confirmarAccion } from "../../components/confirm/confirm.js";
+
 import * as reservasApi from "../reservas/api.js";
 
 import * as contratosApi from "../contratos/api.js";
@@ -373,65 +375,33 @@ function mostrarMensajeExito(codigo) {
 
 }
 
-function parseDMS(texto) {
+function parseCoordenada(texto, tipo) {
 
-    const normalizado = texto
-        .trim()
-        .replace(/[º]/g, "°")
-        .replace(/[’′]/g, "'")
-        .replace(/[”″]/g, "\"");
+    const limpio = texto.trim().replace(",", ".");
 
-    const regex = /^(\d{1,3})°\s*(\d{1,2})'\s*(\d{1,2}(?:\.\d+)?)"\s*([NSEWnsew])$/;
+    const numero = Number(limpio);
 
-    const match = normalizado.match(regex);
-
-    if (!match) {
+    if (limpio === "" || Number.isNaN(numero)) {
 
         return null;
 
     }
 
-    const grados = Number(match[1]);
+    const limite = tipo === "lat" ? 90 : 180;
 
-    const minutos = Number(match[2]);
+    if (Math.abs(numero) > limite) {
 
-    const segundos = Number(match[3]);
-
-    const hemisferio = match[4].toUpperCase();
-
-    let decimal = grados + (minutos / 60) + (segundos / 3600);
-
-    if (hemisferio === "S" || hemisferio === "W") {
-
-        decimal = -decimal;
+        return null;
 
     }
 
-    return decimal;
+    return numero;
 
 }
 
-function formatDMS(decimal, tipo) {
+function formatCoordenada(decimal) {
 
-    const hemisferio = tipo === "lat"
-        ? (decimal >= 0 ? "N" : "S")
-        : (decimal >= 0 ? "E" : "W");
-
-    const absoluto = Math.abs(decimal);
-
-    const grados = Math.floor(absoluto);
-
-    const minutosDecimal = (absoluto - grados) * 60;
-
-    const minutos = Math.floor(minutosDecimal);
-
-    const segundos = (minutosDecimal - minutos) * 60;
-
-    const minutosStr = String(minutos).padStart(2, "0");
-
-    const segundosStr = segundos.toFixed(1).padStart(4, "0");
-
-    return `${grados}°${minutosStr}'${segundosStr}"${hemisferio}`;
+    return Number(decimal).toFixed(6);
 
 }
 
@@ -443,13 +413,13 @@ async function manejarSubmitNuevaValla(evento) {
 
     errorBox.classList.add("d-none");
 
-        const latitud = parseDMS(document.getElementById("campoLatitud").value);
+        const latitud = parseCoordenada(document.getElementById("campoLatitud").value, "lat");
 
-    const longitud = parseDMS(document.getElementById("campoLongitud").value);
+    const longitud = parseCoordenada(document.getElementById("campoLongitud").value, "lon");
 
     if (latitud === null || longitud === null) {
 
-        errorBox.textContent = "Latitud y longitud deben tener el formato 10°00'03.0\"N";
+        errorBox.textContent = "Latitud (-90 a 90) y longitud (-180 a 180) deben ser números decimales, ej. 9.933333 y -84.083333.";
 
         errorBox.classList.remove("d-none");
 
@@ -627,8 +597,8 @@ async function abrirEdicion(id) {
         document.getElementById("codigoPreview").value = valla.codigo;
 
         document.getElementById("campoReferencia").value = valla.referencia;
-        document.getElementById("campoLatitud").value = formatDMS(Number(valla.latitud), "lat");
-        document.getElementById("campoLongitud").value = formatDMS(Number(valla.longitud), "lon");
+        document.getElementById("campoLatitud").value = formatCoordenada(valla.latitud);
+        document.getElementById("campoLongitud").value = formatCoordenada(valla.longitud);
         document.getElementById("campoTamano").value = valla.tamano ?? "";
         document.getElementById("campoTamano").value = valla.tamano ?? "";
 
@@ -669,13 +639,13 @@ async function manejarSubmitEditarValla(evento) {
 
     errorBox.classList.add("d-none");
 
-    const latitud = parseDMS(document.getElementById("campoLatitud").value);
+    const latitud = parseCoordenada(document.getElementById("campoLatitud").value, "lat");
 
-    const longitud = parseDMS(document.getElementById("campoLongitud").value);
+    const longitud = parseCoordenada(document.getElementById("campoLongitud").value, "lon");
 
     if (latitud === null || longitud === null) {
 
-        errorBox.textContent = "Latitud y longitud deben tener el formato 10°00'03.0\"N";
+        errorBox.textContent = "Latitud (-90 a 90) y longitud (-180 a 180) deben ser números decimales, ej. 9.933333 y -84.083333.";
 
         errorBox.classList.remove("d-none");
 
@@ -768,7 +738,11 @@ function registrarResetModalNuevaValla() {
 
 async function manejarArchivar(id) {
 
-    const confirmar = window.confirm("¿Archivar esta valla? Pasará a estado Inactiva.");
+    const confirmar = await confirmarAccion({
+        titulo: "Archivar valla",
+        mensaje: "¿Archivar esta valla? Pasará a estado Inactiva.",
+        textoConfirmar: "Archivar"
+    });
 
     if (!confirmar) {
 
