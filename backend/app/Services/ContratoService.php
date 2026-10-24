@@ -50,7 +50,10 @@ class ContratoService
 
             }
 
-            $valla = Valla::findOrFail($vallaId);
+            // Se bloquea la fila de la valla para que dos personas no la alquilen a la vez
+            $valla = Valla::lockForUpdate()->findOrFail($vallaId);
+
+            $this->verificarVallaLibre($valla, $reserva);
 
             $fechaInicio = $datos['fecha_inicio'];
 
@@ -101,6 +104,17 @@ class ContratoService
 
     public function renovar(Contrato $contrato, array $datos): Contrato
     {
+        $valla = Valla::lockForUpdate()->findOrFail($contrato->valla_id);
+
+        // Un contrato finalizado solo se puede renovar si la valla sigue libre
+        if ($contrato->estado !== 'Activo' && $valla->estado !== 'Disponible') {
+
+            throw ValidationException::withMessages([
+                'estado' => ["La valla {$valla->codigo} ya no está disponible ({$valla->estado}). Crea un contrato nuevo cuando se libere."],
+            ]);
+
+        }
+
         $fechaFin = now()->parse($datos['fecha_inicio'])->addMonths($datos['plazo_meses'])->toDateString();
 
         $contrato->update([
@@ -245,10 +259,62 @@ class ContratoService
         ]));
     }
 
-       private function generarCodigo(Valla $valla, string $fechaInicio): string
+    /**
+     * Sin reserva: la valla debe estar Disponible.
+     * Con reserva: la reserva debe estar Activa y la valla Reservada (o Disponible).
+     */
+    private function verificarVallaLibre(Valla $valla, ?Reserva $reserva): void
+    {
+        if ($reserva) {
+
+            if ($reserva->estado !== 'Activa') {
+
+                throw ValidationException::withMessages([
+                    'reserva_id' => ['Esta reserva ya no está activa, no se puede convertir en contrato.'],
+                ]);
+
+            }
+
+            if (!in_array($valla->estado, ['Reservada', 'Disponible'], true)) {
+
+                throw ValidationException::withMessages([
+                    'valla_id' => ["La valla {$valla->codigo} no está disponible ({$valla->estado})."],
+                ]);
+
+            }
+
+            return;
+
+        }
+
+        if ($valla->estado !== 'Disponible') {
+
+            throw ValidationException::withMessages([
+                'valla_id' => ["La valla {$valla->codigo} no está disponible ({$valla->estado})."],
+            ]);
+
+        }
+    }
+
+    // CT-{valla}-{mes}-{año}; si ya existe (otra contratación de la misma valla ese mes) se agrega -2, -3...
+    private function generarCodigo(Valla $valla, string $fechaInicio): string
     {
         $fecha = now()->parse($fechaInicio);
 
-        return "CT-{$valla->codigo}-{$fecha->format('m')}-{$fecha->format('y')}";
+        $base = mb_substr("CT-{$valla->codigo}-{$fecha->format('m')}-{$fecha->format('y')}", 0, 26);
+
+        $codigo = $base;
+
+        $n = 2;
+
+        while (Contrato::where('codigo', $codigo)->exists()) {
+
+            $codigo = "{$base}-{$n}";
+
+            $n++;
+
+        }
+
+        return $codigo;
     }
 }

@@ -114,7 +114,11 @@ async function handleSubmit(event) {
 
         loginState.attempts += 1;
 
-        const message = error?.status === 422 || error?.status === 401
+        const message = error?.status === 429
+
+            ? error.message
+
+            : error?.status === 422 || error?.status === 401
 
             ? MESSAGES.LOGIN.INVALID_CREDENTIALS
 
