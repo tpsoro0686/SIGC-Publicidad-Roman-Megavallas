@@ -12,10 +12,13 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ConfiguracionController;
+use App\Http\Controllers\PagoPortalController;
+use App\Http\Controllers\PortalController;
+use App\Http\Controllers\SolicitudPortalController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -121,4 +124,37 @@ Route::middleware(['auth:sanctum', 'role:Administrador Sistema'])->prefix('confi
     Route::post('/logo', [ConfiguracionController::class, 'actualizarLogo']);
     Route::post('/tipo-cambio/actualizar', [ConfiguracionController::class, 'actualizarTipoCambio']);
     Route::post('/mantenimiento', [ConfiguracionController::class, 'mantenimiento']);
+});
+
+// Portal de clientes: rutas PUBLICAS (sin login), solo lectura salvo la solicitud.
+Route::prefix('portal')->group(function () {
+    Route::middleware('throttle:120,1')->group(function () {
+        Route::get('/vallas', [PortalController::class, 'vallas']);
+        Route::get('/vallas/{valla}', [PortalController::class, 'valla'])->name('portal.vallas.show');
+        Route::get('/provincias', [PortalController::class, 'provincias']);
+    });
+
+    // Pagos en linea (solo responden si PAGOS_HABILITADOS=true)
+    Route::get('/configuracion', [PagoPortalController::class, 'configuracion'])->middleware('throttle:120,1');
+    Route::get('/solicitudes/{token}/pago', [PagoPortalController::class, 'opciones'])->middleware('throttle:60,1');
+    Route::post('/solicitudes/{token}/pago', [PagoPortalController::class, 'iniciar'])->middleware('throttle:10,10');
+    Route::post('/pagos/aviso/{pasarela}', [PagoPortalController::class, 'aviso'])->middleware('throttle:300,1');
+
+    // Limite estricto contra abuso: 5 solicitudes cada 10 minutos por IP
+    Route::post('/solicitudes', [PortalController::class, 'crearSolicitud'])->middleware('throttle:5,10');
+});
+
+// Bandeja de solicitudes del portal dentro del SIGC
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Dueño'])->prefix('solicitudes')->group(function () {
+    Route::get('/', [SolicitudPortalController::class, 'index']);
+    Route::get('/resumen', [SolicitudPortalController::class, 'resumen']);
+    Route::get('/{solicitud}', [SolicitudPortalController::class, 'show']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo'])->prefix('solicitudes')->group(function () {
+    Route::patch('/{solicitud}/estado', [SolicitudPortalController::class, 'cambiarEstado']);
+});
+
+Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa'])->prefix('solicitudes')->group(function () {
+    Route::patch('/{solicitud}/reasignar', [SolicitudPortalController::class, 'reasignar']);
 });

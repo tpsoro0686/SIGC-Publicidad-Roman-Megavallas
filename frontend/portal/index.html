@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vallas disponibles | Publicidad Román Megavallas</title>
+    <meta name="description" content="Encuentre vallas publicitarias en Costa Rica sobre el mapa, vea su ubicación, medidas y precio, y envíe su solicitud a un ejecutivo.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+
+    <link rel="stylesheet" href="css/portal.css">
+</head>
+<body>
+
+    <div class="app">
+
+        <header class="topbar">
+
+            <a class="marca" href="https://romanmegavallas.com" title="Ir al sitio de Publicidad Román Megavallas">
+                <img src="../assets/img/branding/logo-roman.jpg" alt="Publicidad Román Megavallas">
+            </a>
+
+            <form class="busqueda" id="formBusqueda" role="search" autocomplete="off">
+                <input type="search" id="campoBusqueda" placeholder="Buscar zona, provincia o código de valla" aria-label="Buscar zona, provincia o código de valla">
+                <button type="submit" aria-label="Buscar" data-icono="buscar"></button>
+            </form>
+
+            <button type="button" class="btn-lista" id="btnMiLista" aria-pressed="false">
+                <span data-icono="lista"></span>
+                <span class="btn-lista__texto">Mi lista</span>
+                <span class="btn-lista__n" id="contadorLista">0</span>
+            </button>
+
+        </header>
+
+        <div class="filtros" id="filtros">
+
+            <label class="filtro">
+                <span class="filtro__nombre">Provincia</span>
+                <select id="filtroProvincia" aria-label="Provincia">
+                    <option value="">Toda Costa Rica</option>
+                </select>
+            </label>
+
+            <div class="filtro">
+                <span class="filtro__nombre" id="nombreDisponibilidad">Disponibilidad</span>
+                <div class="seg" role="group" aria-labelledby="nombreDisponibilidad">
+                    <button type="button" class="seg__op is-activo" data-disp="todas">Todas</button>
+                    <button type="button" class="seg__op" data-disp="ahora">Ahora</button>
+                    <button type="button" class="seg__op" data-disp="proximamente">Próximamente</button>
+                </div>
+            </div>
+
+            <button type="button" class="filtros__limpiar" id="btnLimpiar" hidden>Limpiar filtros</button>
+
+        </div>
+
+        <main class="escenario">
+
+            <div class="mapa" id="mapa" aria-label="Mapa de vallas"></div>
+
+            <ul class="leyenda" aria-label="Leyenda del mapa">
+                <li><i class="leyenda__punto leyenda__punto--ahora"></i>Disponible ahora</li>
+                <li><i class="leyenda__punto leyenda__punto--pronto"></i>Próximamente</li>
+            </ul>
+
+            <aside class="panel" id="panel" data-tamano="media" aria-live="polite">
+                <button type="button" class="panel__asa" id="panelAsa" aria-label="Cambiar tamaño del panel"><span></span></button>
+                <div class="panel__contenido" id="panelContenido"></div>
+            </aside>
+
+        </main>
+
+    </div>
+
+    <noscript>Para ver el mapa de vallas necesita activar JavaScript en su navegador.</noscript>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+    <!--
+        Dirección de la API. Si el portal vive en otro dominio que el SIGC,
+        descomenta la línea y pon la dirección real (termina en /api):
+    -->
+    <!-- <script>window.PORTAL_API_URL = "https://sigc.romanmegavallas.com/api";</script> -->
+
+    <script type="module" src="js/main.js"></script>
+
+</body>
+</html>
