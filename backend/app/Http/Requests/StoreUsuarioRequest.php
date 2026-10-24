@@ -18,6 +18,7 @@ class StoreUsuarioRequest extends FormRequest
             'correo' => ['required', 'email', 'max:150', 'unique:usuarios,correo'],
             'password' => ['required', 'string', 'min:6'],
             'rol_id' => ['required', 'exists:roles,id'],
+            'turno_portal' => ['nullable', 'integer', 'min:1', 'max:999'],
         ];
     }
 

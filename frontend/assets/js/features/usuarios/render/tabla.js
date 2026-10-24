@@ -12,7 +12,7 @@ export function renderTabla(usuarios) {
 
             <td>${usuario.correo}</td>
 
-            <td>${badgeRol(usuario.rol?.nombre ?? "-")}</td>
+            <td>${badgeRol(usuario.rol?.nombre ?? "-")}${usuario.turno_portal ? ` <small class="text-muted">Turno ${usuario.turno_portal}</small>` : ""}</td>
 
             <td>${badgeEstado(usuario.estado)}</td>
 

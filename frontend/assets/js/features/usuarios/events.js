@@ -178,6 +178,16 @@ async function cargarRolesSelect() {
 
 }
 
+function actualizarCampoTurno() {
+
+    const select = document.getElementById("campoUsuarioRol");
+
+    const rol = usuariosState.roles.find((r) => r.id === Number(select.value));
+
+    document.getElementById("grupoUsuarioTurno").classList.toggle("d-none", rol?.nombre !== "Ejecutivo");
+
+}
+
 async function abrirEdicion(id) {
 
     try {
@@ -197,6 +207,10 @@ async function abrirEdicion(id) {
         document.getElementById("campoUsuarioPassword").required = false;
 
         document.getElementById("campoUsuarioRol").value = usuario.rol?.id ?? "";
+
+        document.getElementById("campoUsuarioTurno").value = usuario.turno_portal ?? "";
+
+        actualizarCampoTurno();
 
         document.querySelector("#modalNuevoUsuario .modal-title").textContent = "Editar usuario";
 
@@ -275,6 +289,12 @@ async function manejarSubmitUsuario(evento) {
         rol_id: Number(document.getElementById("campoUsuarioRol").value)
 
     };
+
+    const campoTurno = document.getElementById("campoUsuarioTurno").value;
+
+    const turnoVisible = !document.getElementById("grupoUsuarioTurno").classList.contains("d-none");
+
+    datos.turno_portal = turnoVisible && campoTurno !== "" ? Number(campoTurno) : null;
 
     const password = document.getElementById("campoUsuarioPassword").value;
 
@@ -422,11 +442,15 @@ function registrarFormularioUsuario() {
 
     document.getElementById("formNuevoUsuario").addEventListener("submit", manejarSubmitUsuario);
 
+    document.getElementById("campoUsuarioRol").addEventListener("change", actualizarCampoTurno);
+
     document.getElementById("modalNuevoUsuario").addEventListener("hidden.bs.modal", () => {
 
         usuarioEditandoId = null;
 
         document.getElementById("formNuevoUsuario").reset();
+
+        actualizarCampoTurno();
 
         document.getElementById("formNuevoUsuarioError").classList.add("d-none");
 

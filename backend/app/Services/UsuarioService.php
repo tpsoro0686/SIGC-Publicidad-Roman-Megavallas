@@ -34,6 +34,7 @@ class UsuarioService
             'correo' => $datos['correo'],
             'password' => Hash::make($datos['password']),
             'rol_id' => $datos['rol_id'],
+            'turno_portal' => $datos['turno_portal'] ?? null,
             'estado' => 'Activo',
         ]);
     }

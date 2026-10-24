@@ -16,7 +16,7 @@ export function renderTarjetas(usuarios) {
             <div class="sigc-valla-card__referencia">${usuario.correo}</div>
 
             <div class="sigc-valla-card__meta">
-                ${badgeRol(usuario.rol?.nombre ?? "-")}
+                ${badgeRol(usuario.rol?.nombre ?? "-")}${usuario.turno_portal ? ` <small class="text-muted">Turno ${usuario.turno_portal}</small>` : ""}
             </div>
 
             <div class="d-flex gap-1 mt-2">

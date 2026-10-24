@@ -19,6 +19,7 @@ class UpdateUsuarioRequest extends FormRequest
             'correo' => ['sometimes', 'email', 'max:150', Rule::unique('usuarios', 'correo')->ignore($this->route('usuario'))],
             'password' => ['nullable', 'string', 'min:6'],
             'rol_id' => ['sometimes', 'exists:roles,id'],
+            'turno_portal' => ['nullable', 'integer', 'min:1', 'max:999'],
             'estado' => ['sometimes', Rule::in(['Activo', 'Inactivo'])],
         ];
     }

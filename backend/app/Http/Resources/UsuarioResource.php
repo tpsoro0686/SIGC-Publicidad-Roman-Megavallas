@@ -14,6 +14,7 @@ class UsuarioResource extends JsonResource
             'nombre' => $this->nombre,
             'correo' => $this->correo,
             'estado' => $this->estado,
+            'turno_portal' => $this->turno_portal,
             'fecha_ingreso' => $this->created_at?->format('Y-m-d'),
             'rol' => $this->whenLoaded('rol', fn () => [
                 'id' => $this->rol->id,
