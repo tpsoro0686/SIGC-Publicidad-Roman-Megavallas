@@ -95,7 +95,7 @@ class SolicitudPortalService
     public function listar(Usuario $usuario, ?string $estado = null, ?string $busqueda = null, int $perPage = 20)
     {
         return $this->consultaVisible($usuario)
-            ->with('vallas.provincia', 'ejecutivo')
+            ->with('vallas.provincia', 'ejecutivo', 'pagos')
             ->when($estado, fn ($query) => $query->where('estado', $estado))
             ->when($busqueda, function ($query) use ($busqueda) {
                 $query->where(function ($sub) use ($busqueda) {
@@ -107,6 +107,30 @@ class SolicitudPortalService
             })
             ->orderByDesc('id')
             ->paginate($perPage);
+    }
+
+    // Ejecutivos activos a los que se puede reasignar, en el orden de los turnos,
+    // con cuántas solicitudes abiertas (no cerradas) tiene cada uno.
+    public function ejecutivosParaAsignar(): array
+    {
+        $abiertas = SolicitudPortal::where('estado', '!=', 'Cerrada')
+            ->whereNotNull('usuario_id')
+            ->selectRaw('usuario_id, COUNT(*) as total')
+            ->groupBy('usuario_id')
+            ->pluck('total', 'usuario_id');
+
+        return Usuario::whereHas('rol', fn ($query) => $query->where('nombre', 'Ejecutivo'))
+            ->where('estado', 'Activo')
+            ->get()
+            ->sortBy(fn (Usuario $usuario) => [$usuario->turno_portal ?? PHP_INT_MAX, $usuario->id])
+            ->map(fn (Usuario $usuario) => [
+                'id' => $usuario->id,
+                'nombre' => $usuario->nombre,
+                'turno_portal' => $usuario->turno_portal,
+                'abiertas' => (int) ($abiertas[$usuario->id] ?? 0),
+            ])
+            ->values()
+            ->all();
     }
 
     public function resumen(Usuario $usuario): array

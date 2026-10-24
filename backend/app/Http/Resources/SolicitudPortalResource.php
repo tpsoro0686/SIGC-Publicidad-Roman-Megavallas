@@ -29,6 +29,7 @@ class SolicitudPortalResource extends JsonResource
                 'referencia' => $valla->referencia,
                 'provincia' => $valla->relationLoaded('provincia') ? $valla->provincia?->nombre : null,
                 'precio_mostrado' => $valla->pivot->precio_mostrado,
+                'precio_instalacion' => $valla->precio_instalacion,
             ])->values()),
                         'pagos' => $this->pagos->map(fn ($pago) => [
                 'referencia' => $pago->referencia,

@@ -32,6 +32,11 @@ class SolicitudPortalController extends Controller
         return response()->json($this->service->resumen($request->user()));
     }
 
+    public function ejecutivos()
+    {
+        return response()->json($this->service->ejecutivosParaAsignar());
+    }
+
     public function show(Request $request, SolicitudPortal $solicitud)
     {
         return new SolicitudPortalResource($this->service->obtener($request->user(), $solicitud));

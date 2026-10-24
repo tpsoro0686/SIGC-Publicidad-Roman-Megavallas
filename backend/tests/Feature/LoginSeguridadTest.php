@@ -63,12 +63,6 @@ class LoginSeguridadTest extends TestCase
 
         $this->assertSame('Administrador Sistema', $admin->rol->nombre);
 
-        // Si el .env define SEED_ADMIN_PASSWORD, esa es la clave; si no, se genera una al azar (nunca 1234)
-        $configurada = env('SEED_ADMIN_PASSWORD');
-
-        $this->postJson('/api/auth/login', [
-            'correo' => 'admin@publicidadroman.com',
-            'password' => $configurada ?: '1234',
-        ])->assertStatus($configurada ? 200 : 422);
+        $this->postJson('/api/auth/login', ['correo' => 'admin@publicidadroman.com', 'password' => '1234'])->assertStatus(422);
     }
 }
