@@ -228,6 +228,7 @@ function renderPanel() {
     if (estado.vista === "enviado") {
 
         contenido.innerHTML = vistas.htmlEnviado(estado.codigoSolicitud, estado.pago, {
+            apartado: estado.apartado,
             pagando: estado.pagando,
             mensaje: estado.pagoMensaje,
             simulado: Boolean(estado.pagoSimulado)
@@ -656,6 +657,12 @@ async function enviarSolicitud(formulario) {
 
         estado.tokenSolicitud = respuesta?.data?.token ?? null;
 
+        estado.apartado = {
+            apartadas: respuesta?.data?.apartadas ?? [],
+            enEspera: respuesta?.data?.en_espera ?? [],
+            dias: respuesta?.data?.dias ?? 0
+        };
+
         estado.pago = null;
 
         estado.pagoMensaje = "";
@@ -688,7 +695,7 @@ async function enviarSolicitud(formulario) {
 
             estado.errores = mapearErrores(error.data);
 
-            estado.errorGeneral = "Revisa los campos marcados.";
+            estado.errorGeneral = error.data?.errors?.vallas?.[0] ?? "Revisa los campos marcados.";
 
         }
 
@@ -872,7 +879,8 @@ function actualizarMedidor() {
     contenedor.innerHTML = vistas.htmlMedidor({
         totales,
         presupuesto: estado.presupuesto,
-        cabenMas: cabenMas(totales)
+        cabenMas: cabenMas(totales),
+        plazo: Number(estado.borrador.plazo_meses_deseado) || 0
     });
 
 }
@@ -984,6 +992,13 @@ function registrarEventos() {
         }
 
         estado.borrador[campo] = evento.target.value;
+
+        // Al cambiar los meses se recalcula el total sin volver a dibujar todo el formulario
+        if (campo === "plazo_meses_deseado") {
+
+            actualizarMedidor();
+
+        }
 
         if (estado.errores[campo]) {
 

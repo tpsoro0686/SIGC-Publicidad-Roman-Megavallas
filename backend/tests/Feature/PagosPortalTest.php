@@ -27,7 +27,7 @@ class PagosPortalTest extends TestCase
         ]);
     }
 
-    private function solicitud(int $vallas = 2): array
+    private function solicitud(int $vallas = 2, ?int $meses = null): array
     {
         $provincia = Provincia::firstOrCreate(['nombre' => 'San José']);
 
@@ -43,6 +43,7 @@ class PagosPortalTest extends TestCase
 
         $respuesta = $this->postJson('/api/portal/solicitudes', [
             'nombre' => 'Laura Mora', 'telefono' => '88881234', 'correo' => 'laura@cafetico.cr', 'vallas' => $ids,
+            'plazo_meses_deseado' => $meses,
         ])->assertCreated();
 
         return [$respuesta->json('data.token'), $respuesta->json('data.codigo')];
@@ -81,6 +82,24 @@ class PagosPortalTest extends TestCase
         $this->assertEquals(1020, $r->json('opciones.adelanto'));
         $this->assertEquals(3400, $r->json('opciones.completo'));
         $this->assertSame([], $r->json('pagos'));
+    }
+
+    public function test_el_total_depende_de_los_meses_elegidos(): void
+    {
+        [$token] = $this->solicitud(2, 6);
+
+        $r = $this->getJson("/api/portal/solicitudes/{$token}/pago")->assertOk();
+
+        $this->assertSame(6, $r->json('meses'));
+        $this->assertEquals(3000, $r->json('mensual'));
+        $this->assertEquals(18000, $r->json('alquiler'));
+        $this->assertEquals(400, $r->json('instalacion'));
+        $this->assertEquals(18400, $r->json('total'));
+        $this->assertEquals(5520, $r->json('opciones.adelanto'));
+        $this->assertEquals(18400, $r->json('opciones.completo'));
+
+        $inicio = $this->postJson("/api/portal/solicitudes/{$token}/pago", ['tipo' => 'Completo'])->assertCreated();
+        $this->assertEquals(18400, $inicio->json('monto'));
     }
 
     public function test_token_invalido_da_404(): void

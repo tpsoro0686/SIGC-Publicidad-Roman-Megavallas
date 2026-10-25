@@ -1,0 +1,6 @@
+# Archivos que nunca deben subirse a git
+*.zip
+.env
+.env.*
+!.env.example
+!.env.production.example

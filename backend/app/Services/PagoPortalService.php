@@ -34,11 +34,16 @@ class PagoPortalService
     {
         $solicitud->loadMissing('vallas');
 
+        // Meses que el cliente quiere contratar (si no eligió, se cuenta 1 mes)
+        $meses = max(1, (int) $solicitud->plazo_meses_deseado);
+
         $mensual = (int) round($solicitud->vallas->sum(fn ($valla) => (float) $valla->pivot->precio_mostrado) * 100);
+
+        $alquiler = $mensual * $meses;
 
         $instalacion = (int) round($solicitud->vallas->sum(fn ($valla) => (float) $valla->precio_instalacion) * 100);
 
-        $total = $mensual + $instalacion;
+        $total = $alquiler + $instalacion;
 
         $pagado = (int) round(
             (float) $solicitud->pagos()->where('estado', 'Pagado')->sum('monto') * 100
@@ -50,7 +55,7 @@ class PagoPortalService
             ? min($saldo, (int) round($total * config('pagos.porcentaje_adelanto') / 100))
             : 0;
 
-        return compact('mensual', 'instalacion', 'total', 'pagado', 'saldo', 'adelanto');
+        return compact('meses', 'mensual', 'alquiler', 'instalacion', 'total', 'pagado', 'saldo', 'adelanto');
     }
 
     public function opciones(SolicitudPortal $solicitud): array
@@ -63,7 +68,9 @@ class PagoPortalService
             'codigo' => $solicitud->codigo,
             'moneda' => config('pagos.moneda'),
             'porcentaje_adelanto' => config('pagos.porcentaje_adelanto'),
+            'meses' => $m['meses'],
             'mensual' => $aDolares($m['mensual']),
+            'alquiler' => $aDolares($m['alquiler']),
             'instalacion' => $aDolares($m['instalacion']),
             'total' => $aDolares($m['total']),
             'pagado' => $aDolares($m['pagado']),

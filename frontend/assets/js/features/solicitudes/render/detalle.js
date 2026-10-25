@@ -28,7 +28,21 @@ function enlaceTelefono(telefono) {
 
 }
 
-function tablaVallas(vallas) {
+function etiquetaApartado(valla) {
+
+    if (!valla.apartada) {
+        return `<span class="badge text-bg-secondary">En espera</span>`;
+    }
+
+    const colores = { Activa: "success", Convertida: "primary", Vencida: "warning", Cancelada: "secondary" };
+    const estadoReserva = valla.reserva_estado ?? "Activa";
+    const vence = valla.reserva_estado === "Activa" && valla.reserva_vence ? ` · vence ${esc(soloFecha(valla.reserva_vence))}` : "";
+
+    return `<span class="badge text-bg-${colores[estadoReserva] ?? "secondary"}">Apartada: ${esc(estadoReserva)}</span><span class="text-muted small">${vence}</span>`;
+
+}
+
+function tablaVallas(vallas, meses) {
 
     const filas = vallas.map((valla) => `
         <tr>
@@ -38,6 +52,7 @@ function tablaVallas(vallas) {
             </td>
             <td class="text-end">${esc(usd(valla.precio_mostrado))}</td>
             <td class="text-end">${esc(usd(valla.precio_instalacion))}</td>
+            <td>${etiquetaApartado(valla)}</td>
         </tr>
     `).join("");
 
@@ -49,18 +64,19 @@ function tablaVallas(vallas) {
         <div class="sigc-table-wrap">
             <table class="table sigc-table mb-0">
                 <thead>
-                    <tr><th>Valla</th><th class="text-end">Mensual</th><th class="text-end">Instalación</th></tr>
+                    <tr><th>Valla</th><th class="text-end">Mensual</th><th class="text-end">Instalación</th><th>Apartado</th></tr>
                 </thead>
                 <tbody>${filas}</tbody>
                 <tfoot>
                     <tr class="sigc-solicitud__total">
-                        <td>Primer mes (alquiler + instalación)</td>
-                        <td class="text-end" colspan="2">${esc(usd(mensual + instalacion))}</td>
+                        <td>Total ${meses} ${meses === 1 ? "mes" : "meses"} (alquiler + instalación)</td>
+                        <td class="text-end" colspan="2">${esc(usd(mensual * meses + instalacion))}</td>
+                        <td></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
-        <div class="text-muted small mt-1">Precios mostrados al cliente al momento de enviar la solicitud.</div>
+        <div class="text-muted small mt-1">Precios mostrados al cliente al enviar la solicitud, en USD y sin IVA. Si no eligió plazo, el total se calcula a 1 mes.</div>
     `;
 
 }
@@ -160,7 +176,7 @@ export function renderDetalle(solicitud, { ejecutivos = [], puedeCambiarEstado =
         ` : ""}
 
         <h6 class="mt-3">Vallas solicitadas (${vallas.length})</h6>
-        ${tablaVallas(vallas)}
+        ${tablaVallas(vallas, Math.max(1, Number(solicitud.plazo_meses_deseado) || 1))}
 
         <h6 class="mt-3">Pagos en línea</h6>
         ${listaPagos(solicitud.pagos ?? [])}

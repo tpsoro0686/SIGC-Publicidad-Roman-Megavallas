@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Mail\SolicitudAsignadaMail;
 use App\Mail\SolicitudPortalMail;
 use App\Models\Bitacora;
+use App\Models\Cliente;
+use App\Models\Reserva;
 use App\Models\SolicitudPortal;
 use App\Models\Usuario;
 use App\Models\Valla;
@@ -23,7 +25,16 @@ class SolicitudPortalService
     {
         $solicitud = DB::transaction(function () use ($datos) {
 
+            // Bloquea las vallas pedidas: si dos personas piden la misma al mismo tiempo,
+            // la segunda espera y ya la encuentra apartada.
+            $vallas = Valla::whereIn('id', $datos['vallas'])->orderBy('id')->lockForUpdate()->get();
+
             $ejecutivo = $this->siguienteEjecutivo();
+            $responsable = $ejecutivo ?? $this->usuariosActivos(self::ROLES_GESTION)->first();
+
+            $libres = $vallas->where('estado', 'Disponible');
+
+            $this->verificarTopePorCorreo($datos['correo'], $libres->count());
 
             $solicitud = SolicitudPortal::create([
                 'nombre' => $datos['nombre'],
@@ -42,9 +53,35 @@ class SolicitudPortalService
                 'codigo' => 'SOL-' . str_pad((string) $solicitud->id, 4, '0', STR_PAD_LEFT),
             ]);
 
-            Valla::whereIn('id', $datos['vallas'])->get()->each(function (Valla $valla) use ($solicitud) {
-                $solicitud->vallas()->attach($valla->id, ['precio_mostrado' => $valla->precio_normal]);
-            });
+            $cliente = $libres->isNotEmpty() && $responsable ? $this->resolverCliente($datos) : null;
+
+            foreach ($vallas as $valla) {
+
+                $reservaId = null;
+
+                // Solo se aparta lo que está Disponible. Lo demás queda "en espera":
+                // se registra el interés, pero no se le quita la valla a nadie.
+                if ($cliente && $responsable && $valla->estado === 'Disponible') {
+
+                    $reservaId = Reserva::create([
+                        'valla_id' => $valla->id,
+                        'cliente_id' => $cliente->id,
+                        'usuario_id' => $responsable->id,
+                        'fecha_reserva' => now()->toDateString(),
+                        'fecha_vencimiento' => now()->addDays(config('portal.dias_apartado'))->toDateString(),
+                        'estado' => 'Activa',
+                    ])->id;
+
+                    $valla->update(['estado' => 'Reservada']);
+
+                }
+
+                $solicitud->vallas()->attach($valla->id, [
+                    'precio_mostrado' => $valla->precio_normal,
+                    'reserva_id' => $reservaId,
+                ]);
+
+            }
 
             return $solicitud;
 
@@ -55,6 +92,99 @@ class SolicitudPortalService
         $this->notificar($solicitud);
 
         return $solicitud;
+    }
+
+    // Códigos de las vallas de la solicitud que quedaron apartadas / en espera
+    public function resumenApartado(SolicitudPortal $solicitud): array
+    {
+        $solicitud->loadMissing('vallas');
+
+        $apartadas = $solicitud->vallas->filter(fn ($valla) => $valla->pivot->reserva_id)->pluck('codigo')->values()->all();
+        $enEspera = $solicitud->vallas->filter(fn ($valla) => ! $valla->pivot->reserva_id)->pluck('codigo')->values()->all();
+
+        return [
+            'apartadas' => $apartadas,
+            'en_espera' => $enEspera,
+            'dias' => (int) config('portal.dias_apartado'),
+        ];
+    }
+
+    // Libera las vallas que esta solicitud tenía apartadas (reservas todavía activas).
+    // Si ya se convirtieron en contrato (Convertida) no se tocan.
+    public function liberarApartadas(SolicitudPortal $solicitud): int
+    {
+        $ids = DB::table('solicitud_portal_vallas')
+            ->where('solicitud_portal_id', $solicitud->id)
+            ->whereNotNull('reserva_id')
+            ->pluck('reserva_id');
+
+        $liberadas = 0;
+
+        foreach (Reserva::whereIn('id', $ids)->where('estado', 'Activa')->with('valla')->get() as $reserva) {
+
+            $reserva->update(['estado' => 'Cancelada']);
+
+            if ($reserva->valla->estado === 'Reservada') {
+                $reserva->valla->update(['estado' => 'Disponible']);
+            }
+
+            $liberadas++;
+
+        }
+
+        return $liberadas;
+    }
+
+    // Reservas de la solicitud indexadas por id (para mostrar su estado en la bandeja)
+    public function reservasDe(SolicitudPortal $solicitud)
+    {
+        $ids = DB::table('solicitud_portal_vallas')
+            ->where('solicitud_portal_id', $solicitud->id)
+            ->whereNotNull('reserva_id')
+            ->pluck('reserva_id');
+
+        return Reserva::whereIn('id', $ids)->get()->keyBy('id');
+    }
+
+    // Reutiliza al cliente si ya existe uno con ese correo; si no, lo crea sin cédula
+    // (la cédula y demás datos se completan antes de firmar el contrato).
+    private function resolverCliente(array $datos): Cliente
+    {
+        $existente = Cliente::where('correo', $datos['correo'])->orderBy('id')->first();
+
+        if ($existente) {
+            return $existente;
+        }
+
+        return Cliente::create([
+            'nombre' => filled($datos['empresa'] ?? null) ? $datos['empresa'] : $datos['nombre'],
+            'cedula' => null,
+            'telefono' => $datos['telefono'],
+            'correo' => $datos['correo'],
+            'estado' => 'Activo',
+        ]);
+    }
+
+    private function verificarTopePorCorreo(string $correo, int $nuevas): void
+    {
+        if ($nuevas === 0) {
+            return;
+        }
+
+        $activas = Reserva::where('estado', 'Activa')
+            ->whereHas('cliente', fn ($query) => $query->where('correo', $correo))
+            ->whereIn('id', DB::table('solicitud_portal_vallas')->whereNotNull('reserva_id')->select('reserva_id'))
+            ->count();
+
+        $tope = config('portal.max_apartadas_por_correo');
+
+        if ($activas + $nuevas > $tope) {
+
+            throw ValidationException::withMessages([
+                'vallas' => "Con este correo ya tienes vallas apartadas (máximo {$tope} a la vez). Espera a que un ejecutivo te atienda o reduce tu lista.",
+            ]);
+
+        }
     }
 
     // Reparto por turnos segun el campo "turno_portal" de cada ejecutivo activo
@@ -161,6 +291,13 @@ class SolicitudPortalService
             'atendida_en' => $solicitud->atendida_en ?? ($nuevoEstado !== 'Nueva' ? now() : null),
         ]);
 
+        if ($nuevoEstado === 'Cerrada') {
+            $liberadas = $this->liberarApartadas($solicitud);
+            if ($liberadas > 0) {
+                $this->registrarBitacora($usuario, "Liberó {$liberadas} valla(s) apartada(s) al cerrar", $solicitud);
+            }
+        }
+
         $this->registrarBitacora($usuario, "Cambio de estado a {$nuevoEstado}", $solicitud);
 
         return $solicitud->load('vallas.provincia', 'ejecutivo');
@@ -185,6 +322,12 @@ class SolicitudPortalService
         $anterior = $solicitud->ejecutivo?->nombre;
 
         $solicitud->update(['usuario_id' => $ejecutivo->id]);
+
+        // Las reservas que apartan las vallas pasan a manos del nuevo ejecutivo
+        Reserva::whereIn('id', DB::table('solicitud_portal_vallas')
+                ->where('solicitud_portal_id', $solicitud->id)->whereNotNull('reserva_id')->select('reserva_id'))
+            ->where('estado', 'Activa')
+            ->update(['usuario_id' => $ejecutivo->id]);
         $solicitud->load('vallas.provincia', 'ejecutivo');
 
         $this->registrarBitacora($usuario, "Reasignada a {$ejecutivo->nombre}", $solicitud);

@@ -9,6 +9,9 @@ import { esc, usd, numero, hoyISO, plural, esAhora, textoDisponibilidad } from "
 
 const PLAZOS = [1, 2, 3, 6, 12, 24];
 
+// Texto que acompaña a todos los precios del portal (cámbialo aquí si algo cambia)
+const NOTA_PRECIOS = "Precios en dólares (USD), sin IVA.";
+
 function claseDisp(valla) {
 
     return esAhora(valla) ? "disp--ahora" : "disp--pronto";
@@ -274,13 +277,20 @@ export function calcularTotales(vallasLista) {
 
 }
 
-export function htmlMedidor({ totales, presupuesto, cabenMas }) {
+export function htmlMedidor({ totales, presupuesto, cabenMas, plazo = 0 }) {
+
+    const meses = Number(plazo) > 0 ? Number(plazo) : 0;
+
+    const alquiler = totales.mensual * meses;
 
     const filaTotales = `
         <dl class="totales">
             <div><dt>Total por mes</dt><dd>${usd(totales.mensual) ?? "$0"}</dd></div>
+            ${meses ? `<div><dt>Alquiler por ${meses} ${plural(meses, "mes", "meses")}</dt><dd>${usd(alquiler) ?? "$0"}</dd></div>` : ""}
             <div><dt>Instalación (una sola vez)</dt><dd>${usd(totales.instalacion) ?? "$0"}</dd></div>
+            ${meses ? `<div class="totales__total"><dt>Total estimado</dt><dd>${usd(alquiler + totales.instalacion) ?? "$0"}</dd></div>` : ""}
         </dl>
+        ${meses ? "" : "<p class=\"nota\">Elige los meses a contratar para ver el total.</p>"}
         ${totales.sinPrecio
             ? `<p class="nota">${totales.sinPrecio} ${plural(totales.sinPrecio, "valla tiene", "vallas tienen")} el precio por consultar y no se suma${totales.sinPrecio === 1 ? "" : "n"}.</p>`
             : ""}
@@ -392,9 +402,18 @@ export function htmlMiLista({ vallasLista, totales, presupuesto, cabenMas, borra
                 </div>
             </div>
 
-            <div id="medidor">${htmlMedidor({ totales, presupuesto, cabenMas })}</div>
+            <div class="campo ${errores.plazo_meses_deseado ? "campo--error" : ""}">
+                <label for="fPlazo">Meses a contratar <span class="campo__opcional">(opcional)</span></label>
+                <select id="fPlazo" data-campo="plazo_meses_deseado">
+                    <option value="">Por definir</option>
+                    ${PLAZOS.map((meses) => `<option value="${meses}" ${String(borrador.plazo_meses_deseado) === String(meses) ? "selected" : ""}>${meses} ${plural(meses, "mes", "meses")}</option>`).join("")}
+                </select>
+                ${errores.plazo_meses_deseado ? `<p class="campo__error">${esc(errores.plazo_meses_deseado)}</p>` : ""}
+            </div>
 
-            <p class="nota">Precios de referencia en dólares. Tu ejecutivo te confirma la propuesta final.</p>
+            <div id="medidor">${htmlMedidor({ totales, presupuesto, cabenMas, plazo: Number(borrador.plazo_meses_deseado) || 0 })}</div>
+
+            <p class="nota">${NOTA_PRECIOS} Tu ejecutivo te confirma la propuesta final.</p>
 
         </section>
 
@@ -412,20 +431,7 @@ export function htmlMiLista({ vallasLista, totales, presupuesto, cabenMas, borra
 
             ${campo({ id: "fCorreo", nombre: "correo", etiqueta: "Correo", tipo: "email", valor: borrador.correo, requerido: true, errores, atributos: "autocomplete=\"email\" maxlength=\"150\"" })}
 
-            <div class="campos-par">
-
-                ${campo({ id: "fInicio", nombre: "fecha_inicio_deseada", etiqueta: "Inicio de campaña", tipo: "date", valor: borrador.fecha_inicio_deseada, errores, atributos: `min="${hoyISO()}"` })}
-
-                <div class="campo ${errores.plazo_meses_deseado ? "campo--error" : ""}">
-                    <label for="fPlazo">Duración <span class="campo__opcional">(opcional)</span></label>
-                    <select id="fPlazo" data-campo="plazo_meses_deseado">
-                        <option value="">Por definir</option>
-                        ${PLAZOS.map((meses) => `<option value="${meses}" ${String(borrador.plazo_meses_deseado) === String(meses) ? "selected" : ""}>${meses} ${plural(meses, "mes", "meses")}</option>`).join("")}
-                    </select>
-                    ${errores.plazo_meses_deseado ? `<p class="campo__error">${esc(errores.plazo_meses_deseado)}</p>` : ""}
-                </div>
-
-            </div>
+            ${campo({ id: "fInicio", nombre: "fecha_inicio_deseada", etiqueta: "Inicio de campaña", tipo: "date", valor: borrador.fecha_inicio_deseada, errores, atributos: `min="${hoyISO()}"` })}
 
             <div class="campo ${errores.mensaje ? "campo--error" : ""}">
                 <label for="fMensaje">Mensaje <span class="campo__opcional">(opcional)</span></label>
@@ -444,7 +450,7 @@ export function htmlMiLista({ vallasLista, totales, presupuesto, cabenMas, borra
                 ${enviando ? "Enviando…" : "Enviar solicitud"}
             </button>
 
-            <p class="nota nota--centro">Un ejecutivo te contactará para continuar. No se realiza ningún pago en este sitio.</p>
+            <p class="nota nota--centro">Un ejecutivo te contactará para continuar. Enviar la solicitud no genera ningún cobro.</p>
 
         </form>
     `;
@@ -476,7 +482,7 @@ function htmlPago(pago, { pagando, mensaje, simulado }) {
 
     const resumen = Number(pago.pagado) > 0
         ? `<p class="pago__resumen">Pagado: <strong>${esc(usd(pago.pagado))}</strong> · Saldo: <strong>${esc(usd(pago.saldo))}</strong></p>`
-        : `<p class="pago__resumen">Total del primer mes con instalación: <strong>${esc(usd(pago.total))}</strong></p>`;
+        : `<p class="pago__resumen">Total por ${esc(pago.meses)} ${plural(pago.meses, "mes", "meses")} con instalación: <strong>${esc(usd(pago.total))}</strong> <small>(sin IVA)</small></p>`;
 
     if (!opciones.adelanto && !opciones.completo) {
 
@@ -510,6 +516,28 @@ function htmlPago(pago, { pagando, mensaje, simulado }) {
 
 }
 
+function htmlApartado(apartado) {
+
+    if (!apartado) {
+        return "";
+    }
+
+    const { apartadas = [], enEspera = [], dias = 0 } = apartado;
+
+    const partes = [];
+
+    if (apartadas.length) {
+        partes.push(`<p><strong>Apartadas para ti${dias ? ` por ${dias} días` : ""}:</strong> ${apartadas.map(esc).join(", ")}. Nadie más podrá tomarlas mientras tu ejecutivo te atiende.</p>`);
+    }
+
+    if (enEspera.length) {
+        partes.push(`<p><strong>En espera:</strong> ${enEspera.map(esc).join(", ")}. Ya no estaban libres, pero tu ejecutivo te avisará si se desocupan.</p>`);
+    }
+
+    return partes.join("");
+
+}
+
 export function htmlEnviado(codigo, pago = null, opciones = {}) {
 
     return `
@@ -518,6 +546,7 @@ export function htmlEnviado(codigo, pago = null, opciones = {}) {
             <p class="vacio__titulo">Solicitud enviada</p>
             <p class="exito__codigo">${esc(codigo)}</p>
             <p>Un ejecutivo de Publicidad Román Megavallas se pondrá en contacto contigo pronto para continuar con tu campaña.</p>
+            ${htmlApartado(opciones.apartado)}
             ${htmlPago(pago, opciones)}
             <button type="button" class="btn btn--secundario" data-accion="ver-listado">Seguir explorando</button>
         </div>

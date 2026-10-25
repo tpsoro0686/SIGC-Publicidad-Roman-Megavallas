@@ -9,6 +9,8 @@ class SolicitudPortalResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $reservas = $this->relationLoaded('vallas') ? app(\App\Services\SolicitudPortalService::class)->reservasDe($this->resource) : collect();
+
         return [
             'id' => $this->id,
             'codigo' => $this->codigo,
@@ -24,6 +26,9 @@ class SolicitudPortalResource extends JsonResource
                 ? ['id' => $this->ejecutivo->id, 'nombre' => $this->ejecutivo->nombre]
                 : null,
             'vallas' => $this->whenLoaded('vallas', fn () => $this->vallas->map(fn ($valla) => [
+                'apartada' => (bool) $valla->pivot->reserva_id,
+                'reserva_estado' => $reservas->get($valla->pivot->reserva_id)?->estado,
+                'reserva_vence' => $reservas->get($valla->pivot->reserva_id)?->fecha_vencimiento?->toDateString(),
                 'id' => $valla->id,
                 'codigo' => $valla->codigo,
                 'referencia' => $valla->referencia,

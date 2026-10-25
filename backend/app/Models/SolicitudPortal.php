@@ -43,6 +43,6 @@ class SolicitudPortal extends Model
     public function vallas(): BelongsToMany
     {
         return $this->belongsToMany(Valla::class, 'solicitud_portal_vallas', 'solicitud_portal_id', 'valla_id')
-            ->withPivot('precio_mostrado');
+            ->withPivot('precio_mostrado', 'reserva_id');
     }
 }

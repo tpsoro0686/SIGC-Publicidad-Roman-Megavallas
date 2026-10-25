@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         JsonResource::withoutWrapping();
 
-        PreventRequestsDuringMaintenance::except(['api/configuracion*']);
+        PreventRequestsDuringMaintenance::except(['api/configuracion*', 'api/auth/*', 'up']);
 
         // Login: 5 intentos por minuto para el mismo correo desde la misma IP,
         // y 30 por minuto por IP en total (frena a quien prueba muchos correos).

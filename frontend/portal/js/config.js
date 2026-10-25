@@ -5,7 +5,10 @@
  * corre en el mismo equipo, en el puerto 8000 (igual que el SIGC en desarrollo).
  */
 
-export const API_URL = window.PORTAL_API_URL || `http://${window.location.hostname}:8000/api`;
+const ES_LOCAL = /^(localhost|127\.|192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(window.location.hostname);
+
+export const API_URL = window.PORTAL_API_URL
+    || (ES_LOCAL ? `http://${window.location.hostname}:8000/api` : "https://api.romanmegavallas.com/api");
 
 // Vista inicial del mapa: Costa Rica completa
 export const MAPA_INICIAL = Object.freeze({

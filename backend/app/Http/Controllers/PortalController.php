@@ -59,7 +59,7 @@ class PortalController extends Controller
 
         return response()->json([
             'message' => 'Solicitud enviada. Un ejecutivo se pondrá en contacto contigo pronto.',
-            'data' => ['codigo' => $solicitud->codigo, 'token' => $solicitud->token],
+            'data' => ['codigo' => $solicitud->codigo, 'token' => $solicitud->token] + $this->solicitudService->resumenApartado($solicitud),
         ], 201);
     }
 }

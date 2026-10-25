@@ -918,6 +918,21 @@ button {
     color: var(--ink-2);
 }
 
+.totales__total {
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+}
+
+.totales__total dt {
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.totales__total dd {
+    color: var(--red);
+}
+
 .totales dd {
     margin: 0;
     font-family: var(--font-cond);
@@ -1336,3 +1351,11 @@ body { font-size: 14px; }
 .pago .btn small { font-weight: 500; opacity: .85; }
 .pago__prueba { display: grid; gap: 8px; padding: 12px; border: 1px dashed var(--soon); border-radius: 8px; background: #FFFBEB; font-size: 12px; color: var(--ink-2); }
 .pago__botones { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* "Mi lista" con vallas o abierta: el hover no debe borrar el color rojo */
+.btn-lista.tiene-items:hover,
+.btn-lista[aria-pressed="true"]:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+    color: var(--white);
+}

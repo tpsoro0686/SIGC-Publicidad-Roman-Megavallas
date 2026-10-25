@@ -14,6 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
         ->withMiddleware(function (Middleware $middleware): void {
 
+        // Detras del proxy del servidor (Nginx) para que el limite de intentos use la IP real del visitante.
+        // En .env: TRUSTED_PROXIES=* (o la IP del proxy). Vacio = no confiar en ninguno (local).
+        if ($proxies = env('TRUSTED_PROXIES')) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
+
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureRole::class,
         ]);
