@@ -56,6 +56,9 @@ class PortalVallaResource extends JsonResource
         // Alquilada
         $fecha = $this->relationLoaded('contratoActivo') ? $this->contratoActivo?->fecha_fin : null;
 
+        // Vallas cargadas ya ocupadas, sin contrato todavía en el sistema
+        $fecha ??= $this->ocupada_hasta;
+
         return ['Proximamente', $this->fechaFutura($fecha), false];
     }
 

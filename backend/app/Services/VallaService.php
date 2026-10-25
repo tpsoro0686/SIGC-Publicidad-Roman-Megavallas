@@ -66,7 +66,7 @@ class VallaService
 
     public function cambiarEstado(Valla $valla, string $nuevoEstado, Usuario $usuario): Valla
     {
-        if ($valla->estado === 'Alquilada' && $nuevoEstado === 'Disponible') {
+        if ($valla->estado === 'Alquilada' && $nuevoEstado === 'Disponible' && $valla->contratoActivo()->exists()) {
             throw ValidationException::withMessages([
                 'estado' => ['No se puede liberar una valla alquilada directamente. Debe finalizarse el contrato primero.'],
             ]);

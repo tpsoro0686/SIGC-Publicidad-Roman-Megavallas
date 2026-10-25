@@ -6,6 +6,7 @@
  */
 
 import { badgeEstado } from "./badges.js";
+import { esc } from "../../../core/helpers/html.js";
 
 function formatearMoneda(monto) {
 
@@ -40,6 +41,30 @@ function formatCoordenada(decimal) {
     }
 
     return Number(decimal).toFixed(6);
+
+}
+
+// Valla cargada ya ocupada, todavía sin contrato/reserva en el sistema
+function bloqueOcupacionInicial(valla) {
+
+    if (valla.contrato_activo || valla.reserva_activa || (!valla.ocupada_hasta && !valla.ocupada_nota)) {
+
+        return "";
+
+    }
+
+    return `
+
+        <div class="sigc-detalle-seccion">
+            <h4>Ocupación registrada</h4>
+            <dl class="sigc-detalle-lista">
+                ${valla.ocupada_nota ? `<dt>Nota</dt><dd>${esc(valla.ocupada_nota)}</dd>` : ""}
+                ${valla.ocupada_hasta ? `<dt>Disponible desde</dt><dd>${formatearFecha(valla.ocupada_hasta)}</dd>` : ""}
+            </dl>
+            <p class="text-muted small mb-0">Dato de la carga inicial. Se reemplaza al crear el contrato o la reserva.</p>
+        </div>
+
+    `;
 
 }
 
@@ -206,6 +231,8 @@ export function renderDetalle(valla) {
                 <dd>${formatearMoneda(valla.precio_minimo)}</dd>
             </dl>
         </div>
+
+        ${bloqueOcupacionInicial(valla)}
 
         ${bloqueReserva(valla.reserva_activa)}
 

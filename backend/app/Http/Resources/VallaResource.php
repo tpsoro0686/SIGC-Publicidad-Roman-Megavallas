@@ -21,6 +21,8 @@ class VallaResource extends JsonResource
             'precio_minimo' => $this->precio_minimo,
             'precio_instalacion' => $this->precio_instalacion,
             'estado' => $this->estado,
+            'ocupada_hasta' => $this->ocupada_hasta?->toDateString(),
+            'ocupada_nota' => $this->ocupada_nota,
             'provincia' => new ProvinciaResource($this->whenLoaded('provincia')),
             'fotos' => FotoVallaResource::collection($this->whenLoaded('fotos')),
             'reserva_activa' => $this->when($this->relationLoaded('reservaActiva') && $this->reservaActiva, function () {

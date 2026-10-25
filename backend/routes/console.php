@@ -23,3 +23,6 @@ Schedule::command('sanctum:prune-expired --hours=24')->daily();
 
 // Respaldo diario de la base de datos (se conservan los ultimos 14)
 Schedule::command('respaldo:base-datos')->dailyAt('02:00');
+
+// Libera las vallas cargadas como ocupadas cuya fecha ya pasó (y que no tienen contrato ni reserva activos)
+Schedule::command('vallas:liberar-ocupadas-vencidas')->dailyAt('00:10');

@@ -362,7 +362,7 @@ async function cargarMapa() {
 
     try {
 
-        const respuesta = await vallasApi.listar();
+        const respuesta = await vallasApi.listarMapa();
 
         const vallas = (respuesta.data ?? respuesta).filter((valla) => valla.latitud && valla.longitud);
 

@@ -116,3 +116,14 @@ export function listarProvincias() {
     return http.get("/provincias");
 
 }
+
+/**
+ * Todas las vallas con lo mínimo para el mapa (sin paginar).
+ * @returns {Promise<Array>}
+ */
+
+export function listarMapa() {
+
+    return http.get("/vallas/mapa");
+
+}

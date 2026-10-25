@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->get('/provincias', [ProvinciaController::clas
 Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Dueño'])->prefix('vallas')->group(function () {
     Route::get('/', [VallaController::class, 'index']);
     Route::get('/resumen', [VallaController::class, 'resumen']);
+    Route::get('/mapa', [VallaController::class, 'mapa']);
     Route::get('/{valla}', [VallaController::class, 'show']);
 });
 
@@ -148,7 +149,7 @@ Route::prefix('portal')->group(function () {
 Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Dueño'])->prefix('solicitudes')->group(function () {
     Route::get('/', [SolicitudPortalController::class, 'index']);
     Route::get('/resumen', [SolicitudPortalController::class, 'resumen']);
-        Route::get('/{solicitud}', [SolicitudPortalController::class, 'show'])->whereNumber('solicitud');
+    Route::get('/{solicitud}', [SolicitudPortalController::class, 'show'])->whereNumber('solicitud');
 });
 
 Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo'])->prefix('solicitudes')->group(function () {
@@ -156,6 +157,6 @@ Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Emp
 });
 
 Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa'])->prefix('solicitudes')->group(function () {
-        Route::get('/ejecutivos', [SolicitudPortalController::class, 'ejecutivos']);
+    Route::get('/ejecutivos', [SolicitudPortalController::class, 'ejecutivos']);
     Route::patch('/{solicitud}/reasignar', [SolicitudPortalController::class, 'reasignar']);
 });

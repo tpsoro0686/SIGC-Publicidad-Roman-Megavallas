@@ -71,6 +71,18 @@ class VallaController extends Controller
         return new VallaResource($valla);
     }
 
+    // Todas las vallas con lo mínimo para dibujarlas en el mapa (sin paginar)
+    public function mapa()
+    {
+        return response()->json(
+            Valla::query()
+                ->whereNotNull('latitud')
+                ->whereNotNull('longitud')
+                ->orderBy('codigo')
+                ->get(['id', 'codigo', 'referencia', 'latitud', 'longitud', 'estado'])
+        );
+    }
+
     public function resumen()
     {
         return response()->json($this->vallaService->resumen());

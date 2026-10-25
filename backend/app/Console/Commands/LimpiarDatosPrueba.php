@@ -19,6 +19,9 @@ class LimpiarDatosPrueba extends Command
     /** Tablas que se vacían por completo (se desactivan las llaves foráneas). */
     private const TABLAS = [
         'bitacora',
+        'pagos_portal',
+        'solicitud_portal_vallas',
+        'solicitudes_portal',
         'reportes',
         'contratos',
         'reservas',
@@ -28,6 +31,8 @@ class LimpiarDatosPrueba extends Command
         'personal_access_tokens',
         'jobs',
         'failed_jobs',
+        'cache',
+        'cache_locks',
         'usuarios',
     ];
 
