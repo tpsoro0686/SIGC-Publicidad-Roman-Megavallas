@@ -18,7 +18,7 @@ class UsuarioSeeder extends Seeder
         $password = env('SEED_ADMIN_PASSWORD') ?: Str::random(14);
 
         $creado = Usuario::firstOrCreate(
-            ['correo' => 'admin@publicidadroman.com'],
+            ['correo' => env('SEED_ADMIN_EMAIL', 'admin@publicidadroman.com')],
             [
                 'rol_id' => $admin->id,
                 'nombre' => 'Administrador SIGC',
@@ -29,7 +29,7 @@ class UsuarioSeeder extends Seeder
 
         if ($creado->wasRecentlyCreated) {
 
-            $this->command?->warn("Usuario admin@publicidadroman.com creado. Contraseña inicial: {$password}");
+            $this->command?->warn("Usuario {$creado->correo} creado. Contraseña inicial: {$password}");
 
         }
     }
