@@ -56,7 +56,7 @@ export function iniciarMapa(idContenedor, cb) {
         zoomOutTitle: "Alejar"
     }).addTo(mapa);
 
-    L.tileLayer(TILES, { maxZoom: 19, attribution: ATRIBUCION }).addTo(mapa);
+    L.tileLayer(TILES, { maxZoom: 19, attribution: ATRIBUCION, referrerPolicy: "strict-origin-when-cross-origin" }).addTo(mapa);
 
     grupo = L.markerClusterGroup({
 

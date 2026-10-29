@@ -372,7 +372,8 @@ async function cargarMapa() {
 
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
-                attribution: "&copy; OpenStreetMap"
+                attribution: "&copy; OpenStreetMap",
+                referrerPolicy: "strict-origin-when-cross-origin"
 
             }).addTo(mapa);
 
