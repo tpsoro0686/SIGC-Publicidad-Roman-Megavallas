@@ -707,3 +707,20 @@ body {
 [data-theme="dark"] .sigc-filters__search input { color: #E7E8EC; }
 
 [data-theme="dark"] .sigc-table tbody tr:hover { background: #22242B !important; }
+
+/* Modales con formulario: el cuerpo hace scroll y los botones siempre se ven */
+.modal-content {
+    max-height: calc(100vh - 3.5rem);
+}
+
+.modal-content > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.modal-content > form > .modal-body {
+    overflow-y: auto;
+}
