@@ -20,6 +20,8 @@ import { tieneRol, puedeEscribir } from "../../core/auth.js";
 
 import { confirmarAccion } from "../../components/confirm/confirm.js";
 
+import { montarDatosCliente, leerDatosCliente, mensajeDeError } from "../../components/cliente-datos/cliente-datos.js";
+
 import * as reservasApi from "../reservas/api.js";
 
 import * as contratosApi from "../contratos/api.js";

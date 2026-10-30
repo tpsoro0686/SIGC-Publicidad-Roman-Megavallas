@@ -124,11 +124,11 @@ export function mensajeDeError(error, porDefecto) {
 
     if (errores) {
 
-        const primero = Object.values(errores)[0];
+        const todos = Object.values(errores).flat().join(" ");
 
-        if (primero && primero[0]) {
+        if (todos) {
 
-            return primero[0];
+            return todos;
 
         }
 
