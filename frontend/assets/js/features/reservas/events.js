@@ -201,9 +201,19 @@ async function manejarSubmitNuevaReserva(evento) {
 
         cliente_nombre: document.getElementById("campoClienteNombre").value.trim(),
 
-        dias: Number(document.getElementById("campoDias").value) || 3
+            dias: Number(document.getElementById("campoDias").value) || 3
 
-    };
+        };
+
+    if (!Number.isInteger(datos.dias) || datos.dias < 1 || datos.dias > 60) {
+
+        errorBox.textContent = "Los días de reserva deben ser un número entero entre 1 y 60.";
+
+        errorBox.classList.remove("d-none");
+
+        return;
+
+    }
 
     try {
 

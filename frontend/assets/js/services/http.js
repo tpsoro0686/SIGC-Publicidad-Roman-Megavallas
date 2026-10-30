@@ -54,6 +54,20 @@ class HttpService {
 
         if (!response.ok) {
 
+            // Errores de validación (422): armamos un mensaje claro con
+            // lo que falta o está mal, en lugar del resumen genérico.
+            if (response.status === 422 && data?.errors) {
+
+                const detalle = Object.values(data.errors).flat().join(" ");
+
+                if (detalle) {
+
+                    data.message = detalle;
+
+                }
+
+            }
+
             throw {
 
                 status: response.status,
