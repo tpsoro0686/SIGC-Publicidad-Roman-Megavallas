@@ -177,9 +177,15 @@
                             <input type="number" step="0.01" min="0" max="100" id="campoConfigComision" class="form-control">
                         </div>
 
-                        <div class="mb-0">
+                        <div class="mb-3">
                             <label for="campoConfigDiasAviso" class="form-label">Días de aviso para "por vencer"</label>
                             <input type="number" step="1" min="1" max="365" id="campoConfigDiasAviso" class="form-control">
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="campoConfigDiasReserva" class="form-label">Días de reserva de una valla</label>
+                            <input type="number" step="1" min="1" max="60" id="campoConfigDiasReserva" class="form-control">
+                            <div class="form-text">Pasado este plazo, la valla reservada vuelve sola a estar Disponible.</div>
                         </div>
                     </div>
 

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Bitacora;
 use App\Models\Cliente;
+use App\Models\Configuracion;
 use App\Models\Reserva;
 use App\Models\Usuario;
 use App\Models\Valla;
@@ -11,8 +12,6 @@ use Illuminate\Validation\ValidationException;
 
 class ReservaService
 {
-    private const DIAS_POR_DEFECTO = 3;
-
     public function listar(?string $estado, bool $soloMias, Usuario $usuarioActual)
     {
         return Reserva::with('valla', 'cliente', 'usuario')
@@ -37,7 +36,7 @@ class ReservaService
         $clienteId = $datos['cliente_id'] ?? $this->resolverCliente($datos);
 
         $fechaVencimiento = $datos['fecha_vencimiento']
-            ?? now()->addDays($datos['dias'] ?? self::DIAS_POR_DEFECTO)->toDateString();
+            ?? now()->addDays($this->diasReserva())->toDateString();
 
         $reserva = Reserva::create([
             'valla_id' => $valla->id,
@@ -55,11 +54,19 @@ class ReservaService
         return $reserva->load('valla', 'cliente', 'usuario');
     }
 
-        private function resolverCliente(array $datos): int
+        // Días que dura una reserva: se configuran en Configuración (solo el administrador del sistema).
+    public function diasReserva(): int
+    {
+        return max(1, (int) (Configuracion::actual()->dias_reserva ?: 3));
+    }
+
+    private function resolverCliente(array $datos): int
     {
         $cliente = Cliente::create([
             'nombre' => $datos['cliente_nombre'],
             'cedula' => null,
+            'telefono' => $datos['cliente_telefono'] ?? null,
+            'correo' => $datos['cliente_correo'] ?? null,
             'estado' => 'Activo',
         ]);
 

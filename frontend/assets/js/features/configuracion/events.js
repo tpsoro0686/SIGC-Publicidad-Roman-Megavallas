@@ -94,6 +94,8 @@ function poblarFormulario(config) {
 
     document.getElementById("campoConfigDiasAviso").value = config.dias_aviso_vencimiento ?? "";
 
+    document.getElementById("campoConfigDiasReserva").value = config.dias_reserva ?? "";
+
     document.getElementById("checkConfigNotificacionesActivas").checked = Boolean(config.notificaciones_activas);
 
     document.getElementById("campoConfigNotifCorreo").value = config.notificaciones_correo_remitente ?? "";
@@ -187,6 +189,8 @@ async function manejarSubmitFormulario(evento) {
         comision_ejecutivo_pct: Number(document.getElementById("campoConfigComision").value),
 
         dias_aviso_vencimiento: Number(document.getElementById("campoConfigDiasAviso").value),
+
+        dias_reserva: Number(document.getElementById("campoConfigDiasReserva").value),
 
         notificaciones_activas: document.getElementById("checkConfigNotificacionesActivas").checked,
 

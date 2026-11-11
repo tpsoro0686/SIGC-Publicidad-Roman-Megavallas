@@ -83,6 +83,9 @@ return [
         'tipo_cambio' => 'tipo de cambio',
         'comision_ejecutivo_pct' => 'comisión del ejecutivo (%)',
         'dias_aviso_vencimiento' => 'días de aviso de vencimiento',
+        'dias_reserva' => 'días de reserva',
+        'cliente_telefono' => 'teléfono del cliente',
+        'cliente_correo' => 'correo del cliente',
         'turno_portal' => 'turno del portal',
     ],
 ];

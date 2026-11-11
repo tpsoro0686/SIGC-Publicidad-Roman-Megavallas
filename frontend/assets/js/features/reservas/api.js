@@ -28,6 +28,12 @@ export function listar(filtros = {}) {
 
 }
 
+export function obtenerParametros() {
+
+    return http.get("/reservas/parametros");
+
+}
+
 export function obtenerResumen() {
 
     return http.get("/reservas/resumen");

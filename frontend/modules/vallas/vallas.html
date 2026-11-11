@@ -370,9 +370,16 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="campoReservaDias" class="form-label">Días de reserva</label>
-                            <input type="number" min="1" max="60" id="campoReservaDias" class="form-control" value="3">
+                            <label for="campoReservaTelefono" class="form-label">Teléfono del cliente</label>
+                            <input type="text" id="campoReservaTelefono" class="form-control" maxlength="30" placeholder="Ej. 8888-8888" required>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="campoReservaCorreo" class="form-label">Correo del cliente</label>
+                            <input type="email" id="campoReservaCorreo" class="form-control" maxlength="150" placeholder="Ej. cliente@correo.com" required>
+                        </div>
+
+                        <div class="alert alert-info" id="avisoReservaVallaDias"></div>
 
                         <div class="alert alert-danger d-none" id="formReservarVallaError"></div>
 

@@ -784,9 +784,25 @@ function abrirMiniReserva(id) {
 
     document.getElementById("formReservarValla").reset();
 
-    document.getElementById("campoReservaDias").value = 3;
-
     document.getElementById("formReservarVallaError").classList.add("d-none");
+
+    const aviso = document.getElementById("avisoReservaVallaDias");
+
+    aviso.textContent = "";
+
+    reservasApi.obtenerParametros()
+        .then(({ dias_reserva: dias }) => {
+
+            aviso.textContent = `La valla se reservará por ${dias} ${dias === 1 ? "día" : "días"}. Pasado ese plazo volverá automáticamente a estar Disponible.`;
+
+        })
+        .catch((error) => {
+
+            console.error(error);
+
+            aviso.textContent = "La reserva dura unos pocos días; pasado ese plazo la valla vuelve automáticamente a estar Disponible.";
+
+        });
 
     const modal = new bootstrap.Modal(document.getElementById("modalReservarValla"));
 
@@ -808,7 +824,9 @@ async function manejarSubmitReservarValla(evento) {
 
         cliente_nombre: document.getElementById("campoReservaCliente").value.trim(),
 
-        dias: Number(document.getElementById("campoReservaDias").value) || 3
+        cliente_telefono: document.getElementById("campoReservaTelefono").value.trim(),
+
+        cliente_correo: document.getElementById("campoReservaCorreo").value.trim()
 
     };
 

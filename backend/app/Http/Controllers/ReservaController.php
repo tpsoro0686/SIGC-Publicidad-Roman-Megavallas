@@ -54,6 +54,11 @@ class ReservaController extends Controller
         return new ReservaResource($reserva);
     }
 
+    public function parametros()
+    {
+        return response()->json(['dias_reserva' => $this->reservaService->diasReserva()]);
+    }
+
     public function resumen(Request $request)
     {
         return response()->json($this->reservaService->resumen($request->user()));

@@ -17,8 +17,8 @@ class StoreReservaRequest extends FormRequest
             'valla_id' => ['required', 'exists:vallas,id'],
             'cliente_id' => ['nullable', 'exists:clientes,id', 'required_without:cliente_nombre'],
             'cliente_nombre' => ['nullable', 'string', 'max:150', 'required_without:cliente_id'],
-            'dias' => ['nullable', 'integer', 'min:1', 'max:60'],
-            'fecha_vencimiento' => ['nullable', 'date', 'after:today'],
+            'cliente_telefono' => ['nullable', 'string', 'max:30', 'required_with:cliente_nombre'],
+            'cliente_correo' => ['nullable', 'email', 'max:150', 'required_with:cliente_nombre'],
         ];
     }
 }

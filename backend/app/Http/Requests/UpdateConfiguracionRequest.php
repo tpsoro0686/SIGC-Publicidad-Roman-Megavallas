@@ -28,6 +28,7 @@ class UpdateConfiguracionRequest extends FormRequest
 
             'comision_ejecutivo_pct' => ['required', 'numeric', 'min:0', 'max:100'],
             'dias_aviso_vencimiento' => ['required', 'integer', 'min:1', 'max:365'],
+            'dias_reserva' => ['required', 'integer', 'min:1', 'max:60'],
 
             'notificaciones_activas' => ['required', 'boolean'],
             'notificaciones_correo_remitente' => ['nullable', 'email', 'max:150'],

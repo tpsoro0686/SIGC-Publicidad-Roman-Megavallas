@@ -201,19 +201,11 @@ async function manejarSubmitNuevaReserva(evento) {
 
         cliente_nombre: document.getElementById("campoClienteNombre").value.trim(),
 
-            dias: Number(document.getElementById("campoDias").value) || 3
+        cliente_telefono: document.getElementById("campoClienteTelefono").value.trim(),
 
-        };
+        cliente_correo: document.getElementById("campoClienteCorreo").value.trim()
 
-    if (!Number.isInteger(datos.dias) || datos.dias < 1 || datos.dias > 60) {
-
-        errorBox.textContent = "Los días de reserva deben ser un número entero entre 1 y 60.";
-
-        errorBox.classList.remove("d-none");
-
-        return;
-
-    }
+    };
 
     try {
 
@@ -221,11 +213,9 @@ async function manejarSubmitNuevaReserva(evento) {
 
         bootstrap.Modal.getInstance(document.getElementById("modalNuevaReserva")).hide();
 
-        mostrarMensajeExito(`Valla ${reservaCreada.valla.codigo} reservada`);
+        mostrarMensajeExito(`Valla ${reservaCreada.valla.codigo} reservada hasta el ${reservaCreada.fecha_vencimiento.split("-").reverse().join("/")}`);
 
         document.getElementById("formNuevaReserva").reset();
-
-        document.getElementById("campoDias").value = 3;
 
         await cargarReservas();
 
@@ -455,9 +445,29 @@ function registrarFormularioNuevaReserva() {
 
     document.getElementById("formNuevaReserva").addEventListener("submit", manejarSubmitNuevaReserva);
 
-    document.getElementById("modalNuevaReserva").addEventListener("show.bs.modal", () => {
+    document.getElementById("modalNuevaReserva").addEventListener("show.bs.modal", async () => {
 
         cargarVallasDisponibles();
+
+        const aviso = document.getElementById("avisoDiasReserva");
+
+        aviso.textContent = "";
+
+        try {
+
+            const { dias_reserva: dias } = await api.obtenerParametros();
+
+            aviso.textContent = `La valla se reservará por ${dias} ${dias === 1 ? "día" : "días"}. Pasado ese plazo volverá automáticamente a estar Disponible.`;
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            aviso.textContent = "La reserva dura unos pocos días; pasado ese plazo la valla vuelve automáticamente a estar Disponible.";
+
+        }
 
     });
 

@@ -51,6 +51,7 @@ Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Ejecutivo'])->pre
 Route::middleware(['auth:sanctum', 'role:Administrador Sistema,Administrador Empresa,Ejecutivo,Dueño'])->prefix('reservas')->group(function () {
     Route::get('/', [ReservaController::class, 'index']);
     Route::get('/resumen', [ReservaController::class, 'resumen']);
+    Route::get('/parametros', [ReservaController::class, 'parametros']);
     Route::get('/{reserva}', [ReservaController::class, 'show']);
 });
 

@@ -14,7 +14,7 @@ class Configuracion extends Model
         'empresa', 'correo', 'telefono', 'direccion', 'cedula_tipo', 'cedula_numero', 'sitio_web',
         'logo',
         'comision_ejecutivo_pct',
-        'dias_aviso_vencimiento',
+        'dias_aviso_vencimiento', 'dias_reserva',
         'notificaciones_activas', 'notificaciones_correo_remitente', 'notificaciones_nombre_remitente',
         'scheduler_ultima_corrida',
     ];
